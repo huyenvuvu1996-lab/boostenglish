@@ -1,186 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boost English Center - AI Tutor Premium</title>
+    <style>
+        :root { --p: #003366; --bg: #f0f4f8; --success: #2ecc71; --fail: #d63031; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; padding: 10px; }
+        .app-card { background: white; width: 100%; max-width: 450px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: var(--p); color: white; padding: 15px; text-align: center; }
+        .content { padding: 20px; text-align: center; }
+        .word-card { background: #fff; border: 2px solid #eee; border-radius: 20px; padding: 15px; margin-bottom: 15px; }
+        .word-img { width: 100%; height: 180px; object-fit: cover; border-radius: 15px; background: #eee; border: 1px solid #ddd; }
+        .word-en { font-size: 2.2rem; font-weight: 800; color: var(--p); margin: 10px 0; display: block; }
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-bottom: 10px; transition: 0.3s; }
+        .btn-main { background: var(--p); color: white; }
+        .btn-rec { background: var(--fail); color: white; }
+        #studyPage, #resultPage, #loginPage { display: none; }
+        .tutor-box { background: #eef2ff; border: 1px solid #c7d2fe; padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: left; }
+        .leaderboard { text-align: left; background: #fffbe6; padding: 15px; border-radius: 15px; border: 1px solid #fed330; max-height: 250px; overflow-y: auto; }
+        .rank-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
+        .rank-me { background: #e8f5e9; font-weight: bold; color: #2ecc71; border: 1px solid #2ecc71; border-radius: 8px; }
+        .review-card { background: #fff; border: 1px dashed #aaa; padding: 10px; border-radius: 12px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-mini { padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.75rem; font-weight: bold; margin-left: 5px; }
+        input, select { width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 12px; margin-bottom: 12px; font-size: 1rem; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+<div class="app-card">
+    <div class="header">
+        <h3 style="margin:0">BOOST ENGLISH CENTER 🇺🇸</h3>
+        <p style="margin:5px 0 0; font-size:0.8rem;">Gia sư AI luyện phát âm chuẩn</p>
+    </div>
+
+    <div class="content">
+        <div id="loading">🚀 Đang kết nối dữ liệu...</div>
+        
+        <div id="loginPage">
+            <input type="text" id="stName" placeholder="Tên của con (Ví dụ: Kit)...">
+            <select id="stClass"></select>
+            <button class="btn btn-main" onclick="startApp()">VÀO HỌC NGAY 🚀</button>
+        </div>
+
+        <div id="studyPage">
+            <div id="prog" style="text-align:right; font-weight:bold; color:var(--p);">0/0</div>
+            <div class="word-card">
+                <img id="wImg" class="word-img" src="">
+                <span class="word-en" id="wEn">...</span>
+                <span id="wVi" style="color:#666">...</span>
+            </div>
+            <div style="margin-bottom:10px;"><small>🐢 Tốc độ nghe:</small> <input type="range" id="speedRate" min="0.4" max="1.0" step="0.1" value="0.8" style="width:60%; vertical-align: middle;"></div>
+            <div id="stat" style="font-weight:bold; margin-bottom:10px; color:#555">Sẵn sàng!</div>
+            <button class="btn btn-main" onclick="playCurrent()">🔊 NGHE MẪU</button>
+            <button class="btn btn-rec" id="btnMic" onclick="rec()">🎤 BẤM ĐỂ ĐỌC</button>
+            <button class="btn btn-main" style="background:#888; display:none" id="btnSkip" onclick="next()">⏭️ BỎ QUA</button>
+        </div>
+
+        <div id="resultPage">
+            <h2 style="color:var(--p);">KẾT QUẢ: <span id="fScore"></span>/10</h2>
+            <div class="tutor-box">
+                <strong style="color:#1e40af;">📝 NHẬN XÉT CỦA GIA SƯ AI:</strong>
+                <div id="tutorDetails" style="margin-top:8px; font-size: 0.85rem; color: #333; line-height:1.4;"></div>
+                <div id="reviewArea" style="margin-top:10px;"></div>
+            </div>
+            <div class="leaderboard">
+                <strong>🏆 BẢNG XẾP HẠNG LỚP <span id="clsDisplay"></span>:</strong>
+                <div id="bContent" style="margin-top:10px;">Đang cập nhật thứ hạng...</div>
+            </div>
+            <button class="btn btn-main" style="margin-top:15px" onclick="location.reload()">LUYỆN TẬP LẠI</button>
+        </div>
+    </div>
+</div>
+
 <script>
-const scriptURL = 'https://script.google.com/macros/s/AKfycbyTaBKAOaduWcODPxAckPHv_1qzs91Qh7BVlA4fR-fglnab5rMM9Qv0zi2pKZQWFM1-yQ/exec';
-const sheetID = '10_lZS6fipCVC8lk9SBU7tHNw1NnU0-6VKuwJsOh4vrk';
-const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv`;
+    // Cấu hình URL từ Cô cung cấp
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyTaBKAOaduWcODPxAckPHv_1qzs91Qh7BVlA4fR-fglnab5rMM9Qv0zi2pKZQWFM1-yQ/exec';
+    const sheetID = '10_lZS6fipCVC8lk9SBU7tHNw1NnU0-6VKuwJsOh4vrk';
+    const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv`;
+    
+    let boostData = {}, curWords = [], curIdx = 0, totalPoints = 0, sName = "", cName = "", isWrongOnce = false;
+    let mistakeHistory = [];
 
-let boostData = {}, curWords = [], curIdx = 0, totalPoints = 0;
-let sName = "", cName = "", isWrongOnce = false;
+    // Âm thanh báo đúng/sai (Ting / Tè)
+    const audioCorrect = new Audio('https://www.soundjay.com/buttons/sounds/button-11.mp3'); 
+    const audioWrong = new Audio('https://www.soundjay.com/buttons/sounds/button-10.mp3'); 
 
-// 🔊 ÂM THANH
-const audioCorrect = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg'); // TING
-const audioWrong = new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');   // TÈ
-
-audioCorrect.preload = "auto";
-audioWrong.preload = "auto";
-
-async function loadData() {
-    try {
-        const r = await fetch(csvUrl);
-        const text = await r.text();
-        const rows = text.split('\n').map(row =>
-            row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
-        );
-
-        rows.slice(1).forEach(c => {
-            let cls = (c[0]||"").replace(/"/g,'').trim();
-            let en  = (c[1]||"").replace(/"/g,'').trim();
-            let vi  = (c[2]||"").replace(/"/g,'').trim();
-            if(cls && en){
-                if(!boostData[cls]) boostData[cls]=[];
-                boostData[cls].push({en,vi});
-            }
-        });
-
-        document.getElementById('loading').style.display='none';
-        document.getElementById('loginPage').style.display='block';
-
-        let sel=document.getElementById('stClass');
-        Object.keys(boostData).forEach(k =>
-            sel.add(new Option("Lớp: "+k,k))
-        );
-
-    } catch(e){
-        document.getElementById('loading').innerText="Lỗi kết nối!";
-    }
-}
-
-function startApp(){
-    sName=document.getElementById('stName').value.trim();
-    cName=document.getElementById('stClass').value;
-    if(!sName) return alert("Nhập tên nhé!");
-
-    curWords=boostData[cName]||[];
-    if(curWords.length===0) return alert("Chưa có dữ liệu lớp này");
-
-    document.getElementById('clsDisplay').innerText=cName;
-    document.getElementById('loginPage').style.display='none';
-    document.getElementById('studyPage').style.display='block';
-    show();
-}
-
-function show(){
-    isWrongOnce=false;
-    document.getElementById('btnSkip').style.display='none';
-
-    let w=curWords[curIdx];
-    document.getElementById('wEn').innerText=w.en;
-    document.getElementById('wVi').innerText=w.vi;
-    document.getElementById('wImg').src=
-        `https://source.unsplash.com/400x300/?${encodeURIComponent(w.en)}`;
-
-    document.getElementById('prog').innerText=
-        `${curIdx+1}/${curWords.length}`;
-    document.getElementById('stat').innerText="Mời con đọc bài!";
-}
-
-function talk(t){
-    window.speechSynthesis.cancel();
-    const m=new SpeechSynthesisUtterance(t);
-    m.lang='en-US';
-    m.rate=document.getElementById('speedRate').value;
-    window.speechSynthesis.speak(m);
-}
-
-function playCurrent(){ talk(curWords[curIdx].en); }
-
-function rec(){
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if(!SpeechRecognition){
-        alert("Trình duyệt không hỗ trợ mic!");
-        return;
+    async function loadData() {
+        try {
+            const r = await fetch(csvUrl);
+            const text = await r.text();
+            const rows = text.split('\n').map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
+            rows.slice(1).forEach(c => {
+                let cls = (c[0]||"").replace(/"/g, '').trim();
+                let en = (c[1]||"").replace(/"/g, '').trim();
+                let vi = (c[2]||"").replace(/"/g, '').trim();
+                if (cls && en) {
+                    if (!boostData[cls]) boostData[cls] = [];
+                    boostData[cls].push({en, vi});
+                }
+            });
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'block';
+            let sel = document.getElementById('stClass');
+            Object.keys(boostData).forEach(k => sel.add(new Option("Lớp: " + k, k)));
+        } catch (e) { document.getElementById('loading').innerText = "Lỗi kết nối dữ liệu!"; }
     }
 
-    const recognition=new SpeechRecognition();
-    recognition.lang='en-US';
-    recognition.interimResults=false;
-
-    document.getElementById('stat').innerText="🎧 Đang nghe...";
-
-    recognition.onresult=(e)=>{
-        let heard=e.results[0][0].transcript.toLowerCase().trim();
-        let target=curWords[curIdx].en.toLowerCase().trim();
-
-        if(heard.includes(target)){
-            audioCorrect.currentTime=0;
-            audioCorrect.play();   // ✅ TING
-
-            totalPoints+=isWrongOnce?0.5:1;
-            document.getElementById('stat').innerText="🌟 XUẤT SẮC!";
-            setTimeout(()=>next(),1000);
-
-        }else{
-            audioWrong.currentTime=0;
-            audioWrong.play();     // ❌ TÈ
-
-            isWrongOnce=true;
-            document.getElementById('stat').innerText="❌ Thử lại nhé!";
-            document.getElementById('btnSkip').style.display='block';
-        }
-    };
-
-    recognition.onerror=()=>{
-        document.getElementById('stat').innerText="Không nghe rõ, thử lại!";
-    };
-
-    recognition.start();
-}
-
-function next(){
-    if(curIdx<curWords.length-1){
-        curIdx++;
+    function startApp() {
+        sName = document.getElementById('stName').value.trim();
+        cName = document.getElementById('stClass').value;
+        if(!sName) return alert("Con hãy nhập tên mình vào nhé!");
+        
+        // Kích hoạt âm thanh tránh bị trình duyệt chặn
+        audioCorrect.load(); audioWrong.load();
+        
+        curWords = boostData[cName];
+        document.getElementById('clsDisplay').innerText = cName;
+        document.getElementById('loginPage').style.display='none';
+        document.getElementById('studyPage').style.display='block';
         show();
-    }else finish();
-}
-
-async function finish(){
-    document.getElementById('studyPage').style.display='none';
-    document.getElementById('resultPage').style.display='block';
-
-    let finalScore=((totalPoints/curWords.length)*10).toFixed(1);
-    document.getElementById('fScore').innerText=finalScore;
-
-    document.getElementById('tutorDetails').innerText=
-        finalScore>=8?
-        "Tuyệt vời! Con phát âm rất chuẩn.":
-        "Con cố gắng luyện tập thêm nhé!";
-
-    try{
-        const resp=await fetch(`${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${finalScore}`);
-        const data=await resp.json();
-
-        if(!Array.isArray(data)) throw new Error();
-
-        let classResults=data
-            .filter(r=>Array.isArray(r)&&r.length>=3)
-            .map((r,i)=>({
-                name:(r[0]||"").trim(),
-                clss:(r[1]||"").trim(),
-                score:parseFloat(r[2])||0,
-                timeOrder:i
-            }))
-            .filter(x=>x.clss===cName);
-
-        classResults.sort((a,b)=>{
-            if(b.score!==a.score) return b.score-a.score;
-            return a.timeOrder-b.timeOrder;
-        });
-
-        document.getElementById('bContent').innerHTML=
-            classResults.slice(0,20).map((r,i)=>{
-                let isMe=r.name.toLowerCase()===
-                    sName.toLowerCase().trim();
-                return `
-                <div class="rank-item ${isMe?'rank-me':''}">
-                    <span>${i+1}. ${r.name}</span>
-                    <strong>${r.score.toFixed(1)}đ</strong>
-                </div>`;
-            }).join('');
-
-    }catch(e){
-        document.getElementById('bContent').innerText=
-            "Đã lưu điểm thành công!";
     }
-}
 
-window.onload=loadData;
+    function show() {
+        isWrongOnce = false;
+        document.getElementById('btnSkip').style.display = 'none';
+        let w = curWords[curIdx];
+        document.getElementById('wEn').innerText = w.en;
+        document.getElementById('wVi').innerText = w.vi;
+        
+        // Hình ảnh AI theo từ vựng
+        document.getElementById('wImg').src = `https://images.weserv.nl/?url=https://loremflickr.com/400/300/${w.en.replace(/\s/g, '')}&default=https://placehold.co/400x300?text=${w.en}`;
+        
+        document.getElementById('prog').innerText = `${curIdx+1}/${curWords.length}`;
+        document.getElementById('stat').innerText = "Mời con đọc bài!";
+    }
+
+    function talk(t) {
+        window.speechSynthesis.cancel();
+        const m = new SpeechSynthesisUtterance(t);
+        m.lang = 'en-US';
+        m.rate = document.getElementById('speedRate').value;
+        window.speechSynthesis.speak(m);
+    }
+
+    function playCurrent() { talk(curWords[curIdx].en); }
+
+    function rec() {
+        // "Mồi" âm thanh Ting Ting
+        audioCorrect.play().then(() => { audioCorrect.pause(); audioCorrect.currentTime = 0; });
+        
+        const recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
+        recognition.lang = 'en-US';
+        document.getElementById('stat').innerText = "🎧 AI đang nghe con...";
+        
+        recognition.onresult = (e) => {
+            let heard = e.results[0][0].transcript.toLowerCase().trim();
+            let target = curWords[curIdx].en.toLowerCase().trim();
+            
+            if(heard.includes(target)) {
+                audioCorrect.play(); // Ting Ting
+                totalPoints += isWrongOnce ? 0.5 : 1;
+                document.getElementById('stat').innerText = "🌟 XUẤT SẮC!";
+                setTimeout(() => next(), 1000);
+            } else {
+                audioWrong.play(); // Tè
+                if (!isWrongOnce) {
+                    let advice = "Cần phát âm rõ hơn.";
+                    if(target.endsWith('s')) advice = "Con hãy chú ý bật âm đuôi /s/ nhé.";
+                    else if(target.endsWith('t')) advice = "Con đừng quên âm đuôi /t/ nha.";
+                    mistakeHistory.push({ en: target, advice: advice });
+                }
+                isWrongOnce = true;
+                document.getElementById('stat').innerText = "❌ Thử lại nhé con!";
+                document.getElementById('btnSkip').style.display = 'block';
+            }
+        };
+        recognition.start();
+    }
+
+    function next() {
+        if(curIdx < curWords.length - 1) { curIdx++; show(); }
+        else finish();
+    }
+
+    async function finish() {
+        document.getElementById('studyPage').style.display = 'none';
+        document.getElementById('resultPage').style.display = 'block';
+        let finalScore = ((totalPoints / curWords.length) * 10).toFixed(1);
+        document.getElementById('fScore').innerText = finalScore;
+
+        let finalReview = mistakeHistory.length > 0 
+            ? "Con cần luyện thêm các từ: " + mistakeHistory.map(m => m.en).join(', ') + ". Chú ý các âm cuối nha!"
+            : "Tuyệt vời! Con phát âm rất chuẩn, không sai từ nào luôn.";
+        document.getElementById('tutorDetails').innerText = finalReview;
+
+        if(mistakeHistory.length > 0) {
+            document.getElementById('reviewArea').innerHTML = "<strong>🔊 LUYỆN LẠI TỪ KHÓ:</strong>" + 
+                mistakeHistory.map((m, i) => `
+                <div class="review-card" id="rev-${i}">
+                    <div><b>${m.en}</b><br><small style="color:var(--fail)">${m.advice}</small></div>
+                    <div>
+                        <button class="btn-mini" style="background:var(--p);color:white" onclick="talk('${m.en}')">🔊 Nghe</button>
+                        <button class="btn-mini" style="background:var(--success);color:white" onclick="retryAI('${m.en}', 'rev-${i}')">🎤 Đọc</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        try {
+            // Gửi kết quả về App Script của Cô
+            const resp = await fetch(`${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${finalScore}&feedback=${encodeURIComponent(finalReview)}`);
+            const data = await resp.json();
+            
+            // Xử lý bảng xếp hạng từ dữ liệu Sheet trả về
+            let classResults = data
+                .map((item, index) => ({ name: item[0], clss: item[1], score: parseFloat(item[2]) || 0, time: index }))
+                .filter(item => item.clss === cName);
+
+            // Xếp hạng: Điểm cao trên, cùng điểm thì ai làm trước trên
+            classResults.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return a.time - b.time;
+            });
+
+            document.getElementById('bContent').innerHTML = classResults.slice(0, 15).map((r, i) => 
+                `<div class="rank-item ${r.name === sName ? 'rank-me' : ''}">
+                    <span>${i+1}. ${r.name}</span><strong>${r.score.toFixed(1)}đ</strong>
+                </div>`).join('');
+        } catch (e) { document.getElementById('bContent').innerText = "Điểm và nhận xét đã được lưu an toàn!"; }
+    }
+
+    function retryAI(target, id) {
+        const recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
+        recognition.lang = 'en-US';
+        recognition.onresult = (e) => {
+            if(e.results[0][0].transcript.toLowerCase().includes(target.toLowerCase())) {
+                audioCorrect.play();
+                document.getElementById(id).style.background = "#e8f5e9";
+                document.getElementById(id).innerHTML = `<span style="color:var(--success);font-weight:bold">✅ GIỎI QUÁ: ${target}</span>`;
+            } else { audioWrong.play(); }
+        };
+        recognition.start();
+    }
+    window.onload = loadData;
 </script>
+</body>
+</html>
