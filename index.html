@@ -14,15 +14,15 @@
         .word-img { width: 100%; height: 180px; object-fit: cover; border-radius: 15px; }
         .word-en { font-size: 2.2rem; font-weight: 800; color: var(--p); margin: 10px 0; display: block; }
         .btn { width: 100%; padding: 16px; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-bottom: 10px; transition: 0.3s; }
-        .btn:active { transform: scale(0.98); }
         .btn-main { background: var(--p); color: white; }
         .btn-rec { background: var(--fail); color: white; }
         #studyPage, #resultPage, #loginPage { display: none; }
-        .ai-feedback { background: #fff3e0; color: #d35400; padding: 12px; border-radius: 10px; margin: 10px 0; text-align: left; border-left: 4px solid #ff9800; display: none; font-size: 0.9rem; }
         .tutor-box { background: #eef2ff; border: 1px solid #c7d2fe; padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: left; }
-        .leaderboard { text-align: left; background: #fffbe6; padding: 15px; border-radius: 15px; border: 1px solid #fed330; max-height: 250px; overflow-y: auto; }
+        .leaderboard { text-align: left; background: #fffbe6; padding: 15px; border-radius: 15px; border: 1px solid #fed330; max-height: 200px; overflow-y: auto; margin-bottom: 15px; }
         .rank-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
         .rank-me { background: #e8f5e9; font-weight: bold; color: #2ecc71; border: 1px solid #2ecc71; border-radius: 8px; }
+        .review-card { background: white; border: 1px solid #ddd; padding: 10px; border-radius: 12px; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 5px; }
+        .btn-mini { padding: 8px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
         input, select { width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 12px; margin-bottom: 12px; font-size: 1rem; box-sizing: border-box; }
     </style>
 </head>
@@ -35,8 +35,7 @@
     </div>
 
     <div class="content">
-        <div id="loading">🚀 Đang khởi tạo dữ liệu...</div>
-        
+        <div id="loading">🚀 Đang kết nối...</div>
         <div id="loginPage">
             <input type="text" id="stName" placeholder="Tên của con...">
             <select id="stClass"></select>
@@ -52,8 +51,6 @@
             </div>
             <div style="margin-bottom:10px;"><small>🐢 Tốc độ nghe:</small> <input type="range" id="speedRate" min="0.4" max="1.0" step="0.1" value="0.8" style="width:60%; vertical-align: middle;"></div>
             <div id="stat" style="font-weight:bold; margin-bottom:10px; color:#555">Sẵn sàng!</div>
-            <div id="aiTip" class="ai-feedback"></div>
-            
             <button class="btn btn-main" onclick="playCurrent()">🔊 NGHE MẪU</button>
             <button class="btn btn-rec" onclick="rec()">🎤 BẤM ĐỂ ĐỌC</button>
             <button class="btn btn-main" style="background:#888; display:none" id="btnSkip" onclick="next()">⏭️ BỎ QUA</button>
@@ -61,17 +58,16 @@
 
         <div id="resultPage">
             <h2 style="color:var(--p);">KẾT QUẢ: <span id="fScore"></span>/10</h2>
-            
             <div id="tutorSection" class="tutor-box">
-                <strong style="color:#1e40af;">💡 NHẬN XÉT:</strong>
-                <div id="tutorDetails" style="margin-top:8px; font-size: 0.9rem;"></div>
+                <strong style="color:#1e40af;">📝 NHẬN XÉT:</strong>
+                <div id="tutorDetails" style="margin-top:5px; font-size: 0.9rem;"></div>
+                <div id="reviewArea"></div>
             </div>
-
             <div class="leaderboard">
                 <strong>🏆 BẢNG XẾP HẠNG LỚP <span id="clsDisplay"></span>:</strong>
-                <div id="bContent" style="margin-top:10px;">Đang tải xếp hạng...</div>
+                <div id="bContent" style="margin-top:10px;">Đang tải...</div>
             </div>
-            <button class="btn btn-main" style="margin-top:20px" onclick="location.reload()">LUYỆN TẬP LẠI</button>
+            <button class="btn btn-main" onclick="location.reload()">LUYỆN TẬP LẠI</button>
         </div>
     </div>
 </div>
@@ -82,11 +78,7 @@
     const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv`;
     
     let boostData = {}, curWords = [], curIdx = 0, totalPoints = 0, sName = "", cName = "", isWrongOnce = false;
-
-    // Âm thanh khi đúng/sai
-    const sndCorrect = new Audio('https://www.myinstants.com/media/sounds/ding-sound-effect_1.mp3');
-    // Âm thanh "Tè" mạnh mẽ khi sai
-    const sndWrong = new Audio('https://www.myinstants.com/media/sounds/wrong-answer-sound-effect.mp3');
+    let mistakes = [];
 
     async function loadData() {
         try {
@@ -106,13 +98,13 @@
             document.getElementById('loginPage').style.display = 'block';
             let sel = document.getElementById('stClass');
             Object.keys(boostData).forEach(k => sel.add(new Option("Lớp: " + k, k)));
-        } catch (e) { document.getElementById('loading').innerText = "Lỗi kết nối dữ liệu!"; }
+        } catch (e) { document.getElementById('loading').innerText = "Lỗi kết nối!"; }
     }
 
     function startApp() {
         sName = document.getElementById('stName').value.trim();
         cName = document.getElementById('stClass').value;
-        if(!sName) return alert("Con hãy nhập tên nhé!");
+        if(!sName) return alert("Nhập tên nhé!");
         curWords = boostData[cName];
         document.getElementById('clsDisplay').innerText = cName;
         document.getElementById('loginPage').style.display='none';
@@ -123,7 +115,6 @@
     function show() {
         isWrongOnce = false;
         document.getElementById('btnSkip').style.display = 'none';
-        document.getElementById('aiTip').style.display = 'none';
         let w = curWords[curIdx];
         document.getElementById('wEn').innerText = w.en;
         document.getElementById('wVi').innerText = w.vi;
@@ -136,22 +127,17 @@
         const recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
         recognition.lang = 'en-US';
         document.getElementById('stat').innerText = "🎧 Đang nghe...";
-        
         recognition.onresult = (e) => {
             let heard = e.results[0][0].transcript.toLowerCase().trim();
             let target = curWords[curIdx].en.toLowerCase().trim();
-            
             if(heard.includes(target)) {
-                sndCorrect.play();
                 totalPoints += isWrongOnce ? 0.5 : 1;
                 document.getElementById('stat').innerText = "🌟 XUẤT SẮC!";
                 setTimeout(() => next(), 1000);
             } else {
-                sndWrong.play(); // Kêu "tè tè"
+                if (!isWrongOnce) mistakes.push(curWords[curIdx]);
                 isWrongOnce = true;
-                document.getElementById('stat').innerText = "❌ Chưa đúng, thử lại nhé!";
-                document.getElementById('aiTip').style.display = 'block';
-                document.getElementById('aiTip').innerText = `AI nghe được: "${heard}"`;
+                document.getElementById('stat').innerText = "❌ Thử lại nhé!";
                 document.getElementById('btnSkip').style.display = 'block';
             }
         };
@@ -163,43 +149,57 @@
         else finish();
     }
 
-    function playCurrent() {
+    function talk(t) {
         window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(curWords[curIdx].en);
-        msg.lang = 'en-US';
-        msg.rate = document.getElementById('speedRate').value;
-        window.speechSynthesis.speak(msg);
+        const m = new SpeechSynthesisUtterance(t);
+        m.lang = 'en-US'; m.rate = document.getElementById('speedRate').value;
+        window.speechSynthesis.speak(m);
     }
+    function playCurrent() { talk(curWords[curIdx].en); }
 
     async function finish() {
         document.getElementById('studyPage').style.display = 'none';
         document.getElementById('resultPage').style.display = 'block';
         let score = ((totalPoints / curWords.length) * 10).toFixed(1);
         document.getElementById('fScore').innerText = score;
-        
-        document.getElementById('tutorDetails').innerText = score >= 8 ? "Chúc mừng con! Phát âm rất tuyệt vời." : "Con cần luyện tập nghe mẫu nhiều hơn nhé!";
+
+        let comment = mistakes.length > 0 ? "Cần luyện thêm: " + mistakes.map(m=>m.en).join(", ") : "Rất tốt, phát âm chuẩn!";
+        document.getElementById('tutorDetails').innerText = comment;
+
+        if(mistakes.length > 0) {
+            document.getElementById('reviewArea').innerHTML = "<p><strong>🔊 Luyện lại từ sai:</strong></p>" + 
+                mistakes.map((m, i) => `<div class="review-card" id="rev-${i}">
+                    <span>${m.en}</span>
+                    <div>
+                        <button class="btn-mini" onclick="talk('${m.en}')">🔊 Nghe</button>
+                        <button class="btn-mini btn-rec" onclick="retryAI('${m.en}', 'rev-${i}')">🎤 Đọc</button>
+                    </div>
+                </div>`).join('');
+        }
 
         try {
-            // Gửi điểm và nhận phản hồi JSON ngay lập tức
-            const response = await fetch(`${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${score}`);
-            const data = await response.json();
-            
-            // Xử lý dữ liệu bảng xếp hạng: Cột A(0)-Tên, Cột B(1)-Lớp, Cột C(2)-Điểm
-            let list = data.filter(item => item[1] === cName)
-                           .map(item => {
-                               let s = parseFloat(item[2]);
-                               if (isNaN(s) || s > 10.5) s = 0; // Chống lỗi ngày tháng/2026
-                               return { name: item[0], score: s };
-                           })
-                           .sort((a, b) => b.score - a.score); // CAO xuống THẤP
-
+            const r = await fetch(`${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${score}&feedback=${encodeURIComponent(comment)}`);
+            const d = await r.json();
+            let list = d.filter(x => x[1] === cName)
+                        .map(x => ({ n: x[0], s: parseFloat(x[2]) || 0 }))
+                        .sort((a, b) => b.s - a.s);
             document.getElementById('bContent').innerHTML = list.map((r, i) => 
-                `<div class="rank-item ${r.name === sName ? 'rank-me' : ''}">
-                    <span>${i+1}. ${r.name}</span><strong>${r.score.toFixed(1)}đ</strong>
+                `<div class="rank-item ${r.n === sName ? 'rank-me' : ''}">
+                    <span>${i+1}. ${r.n}</span><strong>${r.s.toFixed(1)}đ</strong>
                 </div>`).join('');
-        } catch (e) {
-            document.getElementById('bContent').innerText = "Đã ghi nhận điểm!";
-        }
+        } catch (e) { document.getElementById('bContent').innerText = "Đã lưu điểm!"; }
+    }
+
+    function retryAI(target, id) {
+        const recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
+        recognition.lang = 'en-US';
+        recognition.onresult = (e) => {
+            if(e.results[0][0].transcript.toLowerCase().includes(target.toLowerCase())) {
+                document.getElementById(id).style.background = "#e8f5e9";
+                document.getElementById(id).innerHTML = `<span>✅ ${target}</span> <span>Giỏi lắm!</span>`;
+            } else { alert("Chưa đúng, con nghe lại rồi đọc nhé!"); }
+        };
+        recognition.start();
     }
 
     window.onload = loadData;
