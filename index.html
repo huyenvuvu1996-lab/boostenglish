@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boost English - Phát Âm Chuẩn Mỹ</title>
+    <title>Boost English Center - Luyện Phát Âm</title>
     <style>
         :root { --p: #003366; --bg: #f0f4f8; --success: #2ecc71; --fail: #d63031; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; padding: 10px; }
@@ -11,7 +11,7 @@
         .header { background: var(--p); color: white; padding: 15px; text-align: center; }
         .content { padding: 20px; text-align: center; }
         .word-card { background: #fff; border: 2px solid #eee; border-radius: 20px; padding: 15px; margin-bottom: 15px; }
-        .word-img { width: 100%; height: 180px; object-fit: cover; border-radius: 15px; background: #f0f0f0; }
+        .word-img { width: 100%; height: 200px; object-fit: contain; border-radius: 15px; background: #f9f9f9; padding: 5px; }
         .word-en { font-size: 2.2rem; font-weight: 800; color: var(--p); margin: 10px 0; display: block; }
         .btn { width: 100%; padding: 16px; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-bottom: 10px; transition: 0.3s; }
         .btn-main { background: var(--p); color: white; }
@@ -30,8 +30,8 @@
 
 <div class="app-card">
     <div class="header">
-        <h3 style="margin:0">BOOST ENGLISH 🇺🇸</h3>
-        <p style="margin:5px 0 0; font-size:0.8rem;">Cùng Boost luyện phát âm mỗi ngày</p>
+        <h3 style="margin:0">BOOST ENGLISH CENTER 🇺🇸</h3>
+        <p style="margin:5px 0 0; font-size:0.8rem;">Cùng Boost luyện nói tiếng Anh mỗi ngày</p>
     </div>
 
     <div class="content">
@@ -46,7 +46,7 @@
         <div id="studyPage">
             <div id="prog" style="text-align:right; font-weight:bold; color:var(--p);">0/0</div>
             <div class="word-card">
-                <img id="wImg" class="word-img" src="">
+                <img id="wImg" class="word-img" src="" alt="Minh họa">
                 <span class="word-en" id="wEn">...</span>
                 <span id="wVi" style="color:#666">...</span>
             </div>
@@ -61,7 +61,7 @@
 
         <div id="resultPage">
             <h2 style="color:var(--p);">ĐIỂM CỦA CON: <span id="fScore"></span>/10</h2>
-            <div id="tutorSection" class="tutor-box" style="display:none;">
+            <div id="tutorSection" class="tutor-box">
                 <strong style="color:#1e40af;">💡 AI TUTOR NHẬN XÉT:</strong>
                 <div id="tutorDetails" style="margin-top:8px;"></div>
             </div>
@@ -75,19 +75,15 @@
 </div>
 
 <script>
-    // LINK WEB APP CỦA CÔ
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyTaBKAOaduWcODPxAckPHv_1qzs91Qh7BVlA4fR-fglnab5rMM9Qv0zi2pKZQWFM1-yQ/exec';
-    
-    // CÁC THÔNG SỐ SHEET
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyx_9sSkO850-fOyADs4xT2qqPf5By9fzYeugFCKqqxGFxrY6F_zuwt0AA9uVWF2ijjIQ/exec';
     const sheetID = '10_lZS6fipCVC8lk9SBU7tHNw1NnU0-6VKuwJsOh4vrk';
     const base = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv`;
     
     let boostData = {}, curWords = [], curIdx = 0, totalPoints = 0, sName = "", cName = "", isWrongOnce = false;
     let mistakeAdvice = [];
 
-    // Hiệu ứng âm thanh
-    const sndCorrect = new Audio('https://www.soundjay.com/buttons/sounds/button-11.mp3');
-    const sndWrong = new Audio('https://www.soundjay.com/buttons/sounds/button-10.mp3');
+    const sndCorrect = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
+    const sndWrong = new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3');
 
     function speak(text, rate = 0.8) {
         window.speechSynthesis.cancel();
@@ -98,12 +94,12 @@
     }
 
     function analyzeSpeech(target, heard) {
-        target = target.toLowerCase(); heard = heard.toLowerCase();
-        if (!heard) return "Con hãy đọc to hơn nhé.";
-        if (target.endsWith('s') && !heard.endsWith('s')) return "Thiếu âm đuôi /s/ rồi.";
-        if (target.endsWith('t') && !heard.endsWith('t')) return "Cần bật rõ âm cuối /t/.";
-        if (target.endsWith('k') && !heard.endsWith('k')) return "Chú ý âm bật /k/ ở cuối.";
-        return "Con hãy nhấn rõ âm hơn nhé.";
+        target = target.toLowerCase().trim(); heard = (heard || "").toLowerCase().trim();
+        if (!heard) return "Con đọc to hơn nhé.";
+        if (target.endsWith('s') && !heard.endsWith('s')) return "Thiếu âm đuôi /s/.";
+        if (target.endsWith('t') && !heard.endsWith('t')) return "Thiếu âm cuối /t/.";
+        if (target.endsWith('k') && !heard.endsWith('k')) return "Thiếu âm bật /k/.";
+        return "Con nghe kỹ mẫu rồi đọc lại nhé.";
     }
 
     async function loadData() {
@@ -113,8 +109,8 @@
             const rows = text.split('\n').slice(1);
             rows.forEach(row => {
                 const c = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                let cls = c[0]?.replace(/"/g, '').trim();
-                let en = c[1]?.replace(/"/g, '').trim();
+                let cls = (c[0]||"").replace(/"/g, '').trim();
+                let en = (c[1]||"").replace(/"/g, '').trim();
                 let vi = (c[2] || "").replace(/"/g, '').trim();
                 if (cls && en) {
                     if (!boostData[cls]) boostData[cls] = [];
@@ -125,13 +121,14 @@
             document.getElementById('loginPage').style.display = 'block';
             let sel = document.getElementById('stClass');
             Object.keys(boostData).forEach(k => sel.add(new Option("Lớp: " + k, k)));
-        } catch (e) { document.getElementById('loading').innerText = "❌ Lỗi kết nối dữ liệu Sheet!"; }
+        } catch (e) { document.getElementById('loading').innerText = "❌ Lỗi tải dữ liệu!"; }
     }
 
     function startApp() {
         sName = document.getElementById('stName').value.trim();
         cName = document.getElementById('stClass').value;
-        if(!sName) return alert("Con điền tên nhé!");
+        if(!sName) return alert("Nhập tên nhé!");
+        sndCorrect.play().then(()=>sndCorrect.pause()); 
         document.getElementById('clsDisplay').innerText = cName;
         document.getElementById('loginPage').style.display='none';
         document.getElementById('studyPage').style.display='block';
@@ -146,7 +143,10 @@
         let w = curWords[curIdx];
         document.getElementById('wEn').innerText = w.en;
         document.getElementById('wVi').innerText = w.vi;
-        document.getElementById('wImg').src = `https://loremflickr.com/400/300/${encodeURIComponent(w.en)}`;
+        
+        // --- SỬA ẢNH TẠI ĐÂY: Dùng từ khóa 'educational' để ảnh chuẩn hơn ---
+        document.getElementById('wImg').src = `https://source.unsplash.com/400x300/?${encodeURIComponent(w.en)},object`;
+        
         document.getElementById('prog').innerText = `${curIdx+1}/${curWords.length}`;
         document.getElementById('stat').innerText = "Đến lượt con đọc!";
     }
@@ -158,7 +158,6 @@
         recognition.onresult = (e) => {
             let res = e.results[0][0].transcript.toLowerCase().trim();
             let target = curWords[curIdx].en.toLowerCase().trim();
-            
             if(res.includes(target)) {
                 sndCorrect.play();
                 totalPoints += isWrongOnce ? 0.5 : 1;
@@ -186,33 +185,22 @@
         let score = ((totalPoints / curWords.length) * 10).toFixed(1);
         document.getElementById('fScore').innerText = score;
 
-        let fbText = mistakeAdvice.length > 0 ? mistakeAdvice.map(m => `${m.w}: ${m.adv}`).join('; ') : "Xuất sắc!";
-        
-        document.getElementById('tutorSection').style.display = 'block';
-        if (mistakeAdvice.length > 0) {
-            document.getElementById('tutorDetails').innerHTML = mistakeAdvice.map(m => `<div class="tutor-item"><b>${m.w}</b>: ${m.adv}</div>`).join('');
-        } else {
-            document.getElementById('tutorDetails').innerHTML = "🌟 Rất tốt! Con đã nắm chắc bài học hôm nay.";
-        }
+        let fbText = mistakeAdvice.length > 0 ? mistakeAdvice.map(m => `${m.w}: ${m.adv}`).join(' | ') : "Rất tốt!";
+        document.getElementById('tutorDetails').innerHTML = mistakeAdvice.length > 0 ? 
+            mistakeAdvice.map(m => `<div class="tutor-item"><b>${m.w}</b>: ${m.adv}</div>`).join('') : "🌟 Con làm rất tốt!";
 
         try {
-            // GỬI ĐIỂM VÀ NHẬN DỮ LIỆU BXH
             const res = await fetch(`${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${score}&feedback=${encodeURIComponent(fbText)}`);
             const allData = await res.json();
-            
-            // Xử lý bảng xếp hạng từ dữ liệu Sheet gửi về
             let ranks = allData
                 .filter(r => r && String(r[1]) === cName)
                 .map(r => ({ n: String(r[0]), s: parseFloat(r[2]) || 0 }))
                 .sort((a,b) => b.s - a.s);
-            
             document.getElementById('bContent').innerHTML = ranks.slice(0,10).map((r, i) => 
                 `<div class="rank-item ${r.n === sName ? 'rank-me' : ''}">
                     <span>${i+1}. ${r.n}</span><strong>${r.s.toFixed(1)}đ</strong>
                 </div>`).join('');
-        } catch (e) { 
-            document.getElementById('bContent').innerText = "Đã lưu kết quả thành công!"; 
-        }
+        } catch (e) { document.getElementById('bContent').innerText = "Đã lưu kết quả!"; }
     }
     window.onload = loadData;
 </script>
