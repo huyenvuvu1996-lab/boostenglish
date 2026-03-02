@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boost English - Phát Âm Chuẩn Mỹ</title>
+    <style>
+        :root { --p: #003366; --bg: #f0f4f8; --success: #2ecc71; --fail: #d63031; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; padding: 10px; }
+        .app-card { background: white; width: 100%; max-width: 450px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: var(--p); color: white; padding: 15px; text-align: center; }
+        .content { padding: 20px; text-align: center; }
+        .word-card { background: #fff; border: 2px solid #eee; border-radius: 20px; padding: 15px; margin-bottom: 15px; }
+        .word-img { width: 100%; height: 180px; object-fit: cover; border-radius: 15px; }
+        .word-en { font-size: 2.2rem; font-weight: 800; color: var(--p); margin: 10px 0; display: block; }
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-bottom: 10px; }
+        .btn-main { background: var(--p); color: white; }
+        .btn-rec { background: var(--fail); color: white; }
+        /* Style mới cho nút nghe lại ghi âm */
+        .btn-playback { background: #6c5ce7; color: white; display: none; } 
+        #studyPage, #resultPage, #loginPage { display: none; }
+        .ai-feedback { background: #fff3e0; color: #d35400; padding: 12px; border-radius: 10px; margin: 10px 0; text-align: left; border-left: 4px solid #ff9800; display: none; font-size: 0.9rem; }
+        /* Style cho phần nhận xét AI cuối bài */
+        .tutor-box { background: #eef2ff; border: 1px solid #c7d2fe; padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: left; }
+        .tutor-item { margin-bottom: 8px; font-size: 0.9rem; border-bottom: 1px dashed #c7d2fe; padding-bottom: 5px; }
+        .leaderboard { text-align: left; background: #fffbe6; padding: 15px; border-radius: 15px; border: 1px solid #fed330; max-height: 250px; overflow-y: auto; }
+        .rank-item { display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #eee; }
+        .rank-me { background: #e8f5e9; font-weight: bold; color: #2ecc71; border: 1px solid #2ecc71; border-radius: 8px; }
+        input, select { width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 12px; margin-bottom: 12px; font-size: 1rem; }
+    </style>
+</head>
+<body>
+
+<div class="app-card">
+    <div class="header">
+        <h3 style="margin:0">BOOST ENGLISH 🇺🇸</h3>
+        <p style="margin:5px 0 0; font-size:0.8rem;">Cùng Boost luyện phát âm mỗi ngày</p>
+    </div>
+
+    <div class="content">
+        <div id="loading">🚀 Đang tải dữ liệu...</div>
+        
+        <div id="loginPage">
+            <input type="text" id="stName" placeholder="Tên của con...">
+            <select id="stClass"></select>
+            <button class="btn btn-main" onclick="startApp()">VÀO HỌC 🚀</button>
+        </div>
+
+        <div id="studyPage">
+            <div id="prog" style="text-align:right; font-weight:bold; color:var(--p);">0/0</div>
+            <div class="word-card">
+                <img id="wImg" class="word-img" src="">
+                <span class="word-en" id="wEn">...</span>
+                <span id="wVi" style="color:#666">...</span>
+            </div>
+            <div style="margin-bottom:10px;"><small>🐢 Tốc độ:</small> <input type="range" id="speedRate" min="0.4" max="1.0" step="0.1" value="0.8" style="width:70%"></div>
+            <div id="stat" style="font-weight:bold; margin-bottom:10px; color:#555">Sẵn sàng!</div>
+            <div id="aiTip" class="ai-feedback"></div>
+            
+            <button class="btn btn-main" onclick="playCurrent()">🔊 NGHE MẪU (MỸ)</button>
+            <button class="btn btn-rec" onclick="rec()">🎤 BẤM ĐỂ ĐỌC</button>
+            <button id="btnPlayback" class="btn btn-playback" onclick="playBack()">🔁 NGHE LẠI GIỌNG CON</button>
+            
+            <button class="btn btn-main" style="background:#888; display:none" id="btnSkip" onclick="next()">⏭️ BỎ QUA</button>
+        </div>
+
+        <div id="resultPage">
+            <h2 style="color:var(--p);">ĐIỂM CỦA CON: <span id="fScore"></span>/10</h2>
+            
+            <div id="tutorSection" class="tutor-box" style="display:none;">
+                <strong style="color:#1e40af;">💡 AI TUTOR NHẬN XÉT:</strong>
+                <div id="tutorDetails" style="margin-top:8px;"></div>
+            </div>
+
+            <div class="leaderboard">
+                <strong>🏆 BẢNG XẾP HẠNG LỚP <span id="clsDisplay"></span>:</strong>
+                <div id="bContent" style="margin-top:10px;">Đang tải...</div>
+            </div>
+            <button class="btn btn-main" style="margin-top:20px" onclick="location.reload()">LUYỆN TẬP LẠI</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyTaBKAOaduWcODPxAckPHv_1qzs91Qh7BVlA4fR-fglnab5rMM9Qv0zi2pKZQWFM1-yQ/exec';
+    const sheetID = '10_lZS6fipCVC8lk9SBU7tHNw1NnU0-6VKuwJsOh4vrk';
+    const base = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv`;
+    
+    let boostData = {}, curWords = [], curIdx = 0, totalPoints = 0, sName = "", cName = "", mistakeLog = [], isWrongOnce = false;
+    let lastSpeech = ""; // Lưu giọng đọc gần nhất của học sinh
+    let mistakeAdvice = []; // Lưu lời khuyên AI cho trang kết quả
+
+    // File âm thanh Ting và Tè
+    const sndCorrect = new Audio('https://www.myinstants.com/media/sounds/ding-sound-effect_1.mp3');
+    const sndWrong = new Audio('https://www.myinstants.com/media/sounds/buzzer_x_it_out.mp3');
+
+    function speak(text, rate = 0.8) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(text);
+        const voices = window.speechSynthesis.getVoices();
+        const usVoice = voices.find(v => v.lang === 'en-US' && (v.name.includes('Samantha') || v.name.includes('Google'))) || 
+                        voices.find(v => v.lang.startsWith('en-US')) || voices[0];
+        msg.voice = usVoice; msg.lang = 'en-US'; msg.rate = rate;
+        window.speechSynthesis.speak(msg);
+    }
+
+    // AI phân tích lỗi "Sư phạm"
+    function analyzeSpeech(target, heard) {
+        target = target.toLowerCase();
+        heard = heard.toLowerCase();
+        if (!heard) return "Con hãy đọc to, rõ ràng hơn để AI nghe thấy nhé.";
+        
+        if (target.endsWith('s') && !heard.endsWith('s')) return "Con chú ý bật âm đuôi /s/ ở cuối từ nhé.";
+        if (target.endsWith('t') && !heard.endsWith('t')) return "Con cần bật rõ âm cuối /t/ (tặc lưỡi nhẹ).";
+        if (target.endsWith('k') && !heard.endsWith('k')) return "Con chú ý bật hơi âm /k/ ở cuối.";
+        if (heard.length < target.length - 2) return "Con đang đọc hơi thiếu âm, hãy đọc chậm và đủ các bộ phận của từ.";
+        return "Con chú ý nhấn đúng trọng âm và bật hơi (aspiration) mạnh hơn nhé.";
+    }
+
+    async function loadData() {
+        try {
+            const r = await fetch(base);
+            const text = await r.text();
+            const rows = text.split('\n').map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
+            rows.slice(1).forEach(c => {
+                let cls = c[0]?.replace(/"/g, '').trim();
+                let en = c[1]?.replace(/"/g, '').trim();
+                let vi = (c[2] || "").replace(/"/g, '').trim();
+                if (cls && en) {
+                    if (!boostData[cls]) boostData[cls] = [];
+                    boostData[cls].push({en, vi});
+                }
+            });
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'block';
+            let sel = document.getElementById('stClass');
+            Object.keys(boostData).forEach(k => sel.add(new Option("Lớp: " + k, k)));
+        } catch (e) { document.getElementById('loading').innerText = "Lỗi kết nối!"; }
+    }
+
+    function startApp() {
+        sName = document.getElementById('stName').value.trim();
+        cName = document.getElementById('stClass').value;
+        if(!sName) return alert("Con điền tên nhé!");
+        curWords = boostData[cName];
+        document.getElementById('clsDisplay').innerText = cName;
+        document.getElementById('loginPage').style.display='none';
+        document.getElementById('studyPage').style.display='block';
+        show();
+    }
+
+    function show() {
+        isWrongOnce = false;
+        document.getElementById('btnSkip').style.display = 'none';
+        document.getElementById('aiTip').style.display = 'none';
+        document.getElementById('btnPlayback').style.display = 'none';
+        let w = curWords[curIdx];
+        document.getElementById('wEn').innerText = w.en;
+        document.getElementById('wVi').innerText = w.vi;
+        document.getElementById('wImg').src = `https://source.unsplash.com/featured/400x300?${w.en}`;
+        document.getElementById('prog').innerText = `${curIdx+1}/${curWords.length}`;
+        document.getElementById('stat').innerText = "Đến lượt con đọc!";
+    }
+
+    function rec() {
+        const recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
+        recognition.lang = 'en-US';
+        document.getElementById('stat').innerText = "🎧 Đang nghe...";
+        recognition.onresult = (e) => {
+            let res = e.results[0][0].transcript.toLowerCase().trim();
+            lastSpeech = res; 
+            document.getElementById('btnPlayback').style.display = 'block'; 
+
+            let target = curWords[curIdx].en.toLowerCase().trim();
+            if(res.includes(target)) {
+                sndCorrect.play();
+                totalPoints += isWrongOnce ? 0.5 : 1;
+                document.getElementById('stat').innerText = "🌟 CHÍNH XÁC!";
+                setTimeout(() => next(), 1200);
+            } else {
+                sndWrong.play();
+                if (!isWrongOnce) { // Lưu nhận xét sư phạm lần đầu sai
+                    mistakeAdvice.push({w: target, adv: analyzeSpeech(target, res)});
+                }
+                isWrongOnce = true;
+                mistakeLog.push(target);
+                document.getElementById('stat').innerText = "❌ Thử lại nhé!";
+                document.getElementById('aiTip').style.display = 'block';
+                document.getElementById('aiTip').innerHTML = `AI nghe: "${res}"`;
+                document.getElementById('btnSkip').style.display = 'block';
+            }
+        };
+        recognition.start();
+    }
+
+    // Hàm nghe lại giọng con (giả lập ghi âm bằng cách đọc lại transcript)
+    function playBack() {
+        if(!lastSpeech) return;
+        speak(lastSpeech, 0.7);
+    }
+
+    function next() {
+        if(curIdx < curWords.length - 1) { curIdx++; show(); }
+        else finish();
+    }
+
+    function playCurrent() { speak(curWords[curIdx].en, document.getElementById('speedRate').value); }
+
+    async function finish() {
+        document.getElementById('studyPage').style.display = 'none';
+        document.getElementById('resultPage').style.display = 'block';
+        let score = ((totalPoints / curWords.length) * 10).toFixed(1);
+        document.getElementById('fScore').innerText = score;
+
+        // Xử lý hiển thị AI Tutor cho học sinh
+        let feedbackForSheets = "";
+        if (mistakeAdvice.length > 0) {
+            document.getElementById('tutorSection').style.display = 'block';
+            let html = mistakeAdvice.map(m => `<div class="tutor-item"><b>${m.w}</b>: ${m.adv}</div>`).join('');
+            document.getElementById('tutorDetails').innerHTML = html;
+            feedbackForSheets = mistakeAdvice.map(m => `${m.w}: ${m.adv}`).join('; ');
+        } else {
+            document.getElementById('tutorSection').style.display = 'block';
+            document.getElementById('tutorDetails').innerHTML = "🌟 Xuất sắc! Con phát âm rất tốt, hãy giữ vững phong độ nhé!";
+            feedbackForSheets = "Xuất sắc, phát âm chuẩn!";
+        }
+
+        try {
+            // Gửi cả điểm và bản nhận xét chi tiết về Sheets
+            const res = await fetch(`${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${score}&feedback=${encodeURIComponent(feedbackForSheets)}`);
+            const allData = await res.json();
+            
+            let ranks = allData.filter(r => String(r[1]) === cName)
+                               .map(r => ({ n: r[0], s: parseFloat(r[2]) }))
+                               .filter(item => !isNaN(item.s) && item.s <= 10.5)
+                               .sort((a,b) => b.s - a.s);
+            
+            if(ranks.length > 0) {
+                document.getElementById('bContent').innerHTML = ranks.map((r, i) => 
+                    `<div class="rank-item ${r.n === sName ? 'rank-me' : ''}">
+                        <span>${i+1}. ${r.n}</span><strong>${r.s.toFixed(1)}đ</strong>
+                    </div>`).join('');
+            }
+        } catch (e) {
+            document.getElementById('bContent').innerText = "Đã lưu điểm!";
+        }
+    }
+
+    window.onload = loadData;
+    window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+</script>
+</body>
+</html>
