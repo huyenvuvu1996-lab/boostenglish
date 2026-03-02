@@ -11,7 +11,7 @@
         .header { background: var(--p); color: white; padding: 15px; text-align: center; }
         .content { padding: 20px; text-align: center; }
         .word-card { background: #fff; border: 2px solid #eee; border-radius: 20px; padding: 15px; margin-bottom: 15px; }
-        .word-img { width: 100%; height: 180px; object-fit: cover; border-radius: 15px; background: #eee; }
+        .word-img { width: 100%; height: 180px; object-fit: cover; border-radius: 15px; background: #eee; border: 1px solid #ddd; }
         .word-en { font-size: 2.2rem; font-weight: 800; color: var(--p); margin: 10px 0; display: block; }
         .btn { width: 100%; padding: 16px; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-bottom: 10px; transition: 0.3s; }
         .btn-main { background: var(--p); color: white; }
@@ -21,9 +21,6 @@
         .leaderboard { text-align: left; background: #fffbe6; padding: 15px; border-radius: 15px; border: 1px solid #fed330; max-height: 250px; overflow-y: auto; margin-bottom: 15px; }
         .rank-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
         .rank-me { background: #e8f5e9; font-weight: bold; color: #2ecc71; border: 1px solid #2ecc71; border-radius: 8px; }
-        .review-card { background: #fdfdfd; border: 1px dashed #aaa; padding: 10px; border-radius: 12px; margin-top: 8px; display: flex; flex-direction: column; gap: 8px; }
-        .review-btns { display: flex; gap: 5px; justify-content: flex-end; }
-        .btn-mini { padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
         input, select { width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 12px; margin-bottom: 12px; font-size: 1rem; box-sizing: border-box; }
     </style>
 </head>
@@ -60,9 +57,8 @@
         <div id="resultPage">
             <h2 style="color:var(--p);">KẾT QUẢ: <span id="fScore"></span>/10</h2>
             <div class="tutor-box">
-                <strong style="color:#1e40af;">📝 NHẬN XÉT SƯ PHẠM:</strong>
-                <div id="tutorDetails" style="margin-top:8px; font-size: 0.85rem; color: #333; line-height:1.4;"></div>
-                <div id="reviewArea" style="margin-top:10px;"></div>
+                <strong style="color:#1e40af;">📝 NHẬN XÉT:</strong>
+                <div id="tutorDetails" style="margin-top:8px; font-size: 0.85rem; color: #333;"></div>
             </div>
             <div class="leaderboard">
                 <strong>🏆 BẢNG XẾP HẠNG LỚP <span id="clsDisplay"></span>:</strong>
@@ -79,9 +75,8 @@
     const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv`;
     
     let boostData = {}, curWords = [], curIdx = 0, totalPoints = 0, sName = "", cName = "", isWrongOnce = false;
-    let mistakeHistory = [];
-
-    // Âm thanh Ting và Tè
+    
+    // 1. ÂM THANH BÁO ĐÚNG SAI
     const audioCorrect = new Audio('https://actions.google.com/sounds/v1/cartoon/positive_beeps.ogg'); 
     const audioWrong = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg'); 
 
@@ -106,17 +101,12 @@
         } catch (e) { document.getElementById('loading').innerText = "Lỗi kết nối!"; }
     }
 
-    function unlockAudio() {
-        audioCorrect.play().then(() => { audioCorrect.pause(); audioCorrect.currentTime = 0; });
-        audioWrong.play().then(() => { audioWrong.pause(); audioWrong.currentTime = 0; });
-        talk("");
-    }
-
     function startApp() {
         sName = document.getElementById('stName').value.trim();
         cName = document.getElementById('stClass').value;
         if(!sName) return alert("Nhập tên nhé!");
-        unlockAudio();
+        // Mồi âm thanh cho trình duyệt
+        audioCorrect.play().then(() => audioCorrect.pause());
         curWords = boostData[cName];
         document.getElementById('clsDisplay').innerText = cName;
         document.getElementById('loginPage').style.display='none';
@@ -130,7 +120,10 @@
         let w = curWords[curIdx];
         document.getElementById('wEn').innerText = w.en;
         document.getElementById('wVi').innerText = w.vi;
-        document.getElementById('wImg').src = `https://images.weserv.nl/?url=https://loremflickr.com/400/300/${w.en}&default=https://placehold.co/400x300?text=${w.en}`;
+        
+        // 2. HÌNH ẢNH AI CHUẨN TỪ VỰNG (Dùng nguồn Unsplash chất lượng cao)
+        document.getElementById('wImg').src = `https://source.unsplash.com/400x300/?${encodeURIComponent(w.en)}`;
+        
         document.getElementById('prog').innerText = `${curIdx+1}/${curWords.length}`;
         document.getElementById('stat').innerText = "Mời con đọc bài!";
     }
@@ -153,18 +146,12 @@
             let heard = e.results[0][0].transcript.toLowerCase().trim();
             let target = curWords[curIdx].en.toLowerCase().trim();
             if(heard.includes(target)) {
-                audioCorrect.play(); 
+                audioCorrect.play(); // Kêu TING
                 totalPoints += isWrongOnce ? 0.5 : 1;
                 document.getElementById('stat').innerText = "🌟 XUẤT SẮC!";
                 setTimeout(() => next(), 1000);
             } else {
-                audioWrong.play(); 
-                if (!isWrongOnce) {
-                    let detailAdvice = "Con cần phát âm rõ hơn.";
-                    if(target.endsWith('s')) detailAdvice = "Chú ý âm cuối /s/ nhé.";
-                    else if(target.endsWith('t')) detailAdvice = "Đừng quên bật hơi âm đuôi /t/ nhé.";
-                    mistakeHistory.push({ word: target, advice: detailAdvice });
-                }
+                audioWrong.play(); // Kêu TÈ
                 isWrongOnce = true;
                 document.getElementById('stat').innerText = "❌ Thử lại nhé!";
                 document.getElementById('btnSkip').style.display = 'block';
@@ -183,64 +170,34 @@
         document.getElementById('resultPage').style.display = 'block';
         let finalScore = ((totalPoints / curWords.length) * 10).toFixed(1);
         document.getElementById('fScore').innerText = finalScore;
-
-        let aiReview = mistakeHistory.length > 0 
-            ? "Con làm rất tốt. Hãy luyện thêm các âm đuôi nhé!"
-            : "Hoàn hảo! Phát âm rất rõ ràng.";
-        document.getElementById('tutorDetails').innerText = aiReview;
-
-        if(mistakeHistory.length > 0) {
-            document.getElementById('reviewArea').innerHTML = "<p><strong>🔊 LUYỆN LẠI:</strong></p>" + 
-                mistakeHistory.map((m, i) => `<div class="review-card" id="rev-${i}">
-                    <span style="font-weight:bold; color:#d63031;">${m.word}</span>
-                    <small style="color:#666; font-style:italic;">${m.advice}</small>
-                    <div class="review-btns">
-                        <button class="btn-mini" style="background:#003366; color:white;" onclick="talk('${m.word}')">🔊 Nghe</button>
-                        <button class="btn-mini" style="background:#2ecc71; color:white;" onclick="retryAI('${m.word}', 'rev-${i}')">🎤 Đọc</button>
-                    </div>
-                </div>`).join('');
-        }
+        document.getElementById('tutorDetails').innerText = finalScore >= 8 ? "Tuyệt vời! Con phát âm rất chuẩn." : "Con cố gắng luyện tập thêm nhé!";
 
         try {
-            const resp = await fetch(`${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${finalScore}&feedback=${encodeURIComponent(aiReview)}`);
+            const resp = await fetch(`${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${finalScore}`);
             const data = await resp.json();
             
-            let classResults = [];
-            data.forEach((item, index) => {
-                if (item[1] === cName) {
-                    classResults.push({
-                        name: item[0],
-                        score: parseFloat(item[2]) || 0, // Cột C
-                        originalIndex: index 
-                    });
-                }
-            });
+            // 3. SẮP XẾP BẢNG XẾP HẠNG (ĐIỂM CỘT C + THỜI GIAN)
+            let classResults = data
+                .map((item, index) => ({
+                    name: item[0],
+                    clss: item[1],
+                    score: parseFloat(item[2]) || 0, // Cột C
+                    timeOrder: index // Ai làm trước nằm ở dòng trên (index nhỏ)
+                }))
+                .filter(item => item.clss === cName);
 
-            // Sắp xếp: Điểm cao trước -> Index nhỏ (thời gian sớm) trước
+            // Sắp xếp: Điểm giảm dần, nếu bằng điểm thì index tăng dần (ai làm trước đứng trên)
             classResults.sort((a, b) => {
                 if (b.score !== a.score) return b.score - a.score;
-                return a.originalIndex - b.originalIndex;
+                return a.timeOrder - b.timeOrder;
             });
 
-            document.getElementById('bContent').innerHTML = classResults.map((r, i) => 
+            document.getElementById('bContent').innerHTML = classResults.slice(0, 20).map((r, i) => 
                 `<div class="rank-item ${r.name === sName ? 'rank-me' : ''}">
                     <span>${i+1}. ${r.name}</span><strong>${r.score.toFixed(1)}đ</strong>
                 </div>`).join('');
 
-        } catch (e) { document.getElementById('bContent').innerText = "Điểm đã được lưu!"; }
-    }
-
-    function retryAI(target, id) {
-        const recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
-        recognition.lang = 'en-US';
-        recognition.onresult = (e) => {
-            if(e.results[0][0].transcript.toLowerCase().includes(target.toLowerCase())) {
-                audioCorrect.play();
-                document.getElementById(id).style.background = "#e8f5e9";
-                document.getElementById(id).innerHTML = `<span style="color:#27ae60; font-weight:bold;">✅ XONG: ${target}</span>`;
-            } else { audioWrong.play(); }
-        };
-        recognition.start();
+        } catch (e) { document.getElementById('bContent').innerText = "Đã lưu điểm thành công!"; }
     }
     window.onload = loadData;
 </script>
