@@ -77,16 +77,16 @@
 </div>
 
 <script>
-    // URL Google Apps Script của Cô
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyTaBKAOaduWcODPxAckPHv_1qzs91Qh7BVlA4fR-fglnab5rMM9Qv0zi2pKZQWFM1-yQ/exec';
     const sheetID = '10_lZS6fipCVC8lk9SBU7tHNw1NnU0-6VKuwJsOh4vrk';
     const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv`;
     
     let boostData = {}, curWords = [], curIdx = 0, totalPoints = 0, sName = "", cName = "", isWrongOnce = false;
-    let mistakeAdvice = [];
 
+    // Âm thanh khi đúng/sai
     const sndCorrect = new Audio('https://www.myinstants.com/media/sounds/ding-sound-effect_1.mp3');
-    const sndWrong = new Audio('https://www.myinstants.com/media/sounds/buzzer_x_it_out.mp3');
+    // Âm thanh "Tè" mạnh mẽ khi sai
+    const sndWrong = new Audio('https://www.myinstants.com/media/sounds/wrong-answer-sound-effect.mp3');
 
     async function loadData() {
         try {
@@ -106,7 +106,7 @@
             document.getElementById('loginPage').style.display = 'block';
             let sel = document.getElementById('stClass');
             Object.keys(boostData).forEach(k => sel.add(new Option("Lớp: " + k, k)));
-        } catch (e) { document.getElementById('loading').innerText = "Lỗi tải dữ liệu. Cô kiểm tra lại file Sheets nhé!"; }
+        } catch (e) { document.getElementById('loading').innerText = "Lỗi kết nối dữ liệu!"; }
     }
 
     function startApp() {
@@ -147,7 +147,7 @@
                 document.getElementById('stat').innerText = "🌟 XUẤT SẮC!";
                 setTimeout(() => next(), 1000);
             } else {
-                sndWrong.play();
+                sndWrong.play(); // Kêu "tè tè"
                 isWrongOnce = true;
                 document.getElementById('stat').innerText = "❌ Chưa đúng, thử lại nhé!";
                 document.getElementById('aiTip').style.display = 'block';
@@ -180,21 +180,25 @@
         document.getElementById('tutorDetails').innerText = score >= 8 ? "Chúc mừng con! Phát âm rất tuyệt vời." : "Con cần luyện tập nghe mẫu nhiều hơn nhé!";
 
         try {
-            // Gửi điểm và nhận lại toàn bộ danh sách xếp hạng
+            // Gửi điểm và nhận phản hồi JSON ngay lập tức
             const response = await fetch(`${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${score}`);
             const data = await response.json();
             
-            // Lọc và sắp xếp bảng xếp hạng của lớp
+            // Xử lý dữ liệu bảng xếp hạng: Cột A(0)-Tên, Cột B(1)-Lớp, Cột C(2)-Điểm
             let list = data.filter(item => item[1] === cName)
-                           .map(item => ({ name: item[0], score: parseFloat(item[2]) }))
-                           .sort((a, b) => b.score - a.score);
+                           .map(item => {
+                               let s = parseFloat(item[2]);
+                               if (isNaN(s) || s > 10.5) s = 0; // Chống lỗi ngày tháng/2026
+                               return { name: item[0], score: s };
+                           })
+                           .sort((a, b) => b.score - a.score); // CAO xuống THẤP
 
-            document.getElementById('bContent').innerHTML = list.slice(0, 10).map((r, i) => 
+            document.getElementById('bContent').innerHTML = list.map((r, i) => 
                 `<div class="rank-item ${r.name === sName ? 'rank-me' : ''}">
                     <span>${i+1}. ${r.name}</span><strong>${r.score.toFixed(1)}đ</strong>
                 </div>`).join('');
         } catch (e) {
-            document.getElementById('bContent').innerText = "Đã lưu điểm thành công!";
+            document.getElementById('bContent').innerText = "Đã ghi nhận điểm!";
         }
     }
 
