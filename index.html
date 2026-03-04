@@ -1,241 +1,240 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boost English Center - Luyện Phát Âm Anh-Anh</title>
-    <style>
-        :root { --p: #003366; --bg: #f0f4f8; --success: #2ecc71; --fail: #d63031; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; padding: 10px; }
-        .app-card { background: white; width: 100%; max-width: 450px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); overflow: hidden; }
-        .header { background: var(--p); color: white; padding: 15px; text-align: center; }
-        .content { padding: 20px; text-align: center; }
-        .word-card { background: #fff; border: 2px solid #eee; border-radius: 20px; padding: 15px; margin-bottom: 15px; }
-        .word-img { width: 100%; height: 180px; object-fit: cover; border-radius: 15px; background: #f0f0f0; }
-        .word-en { font-size: 2.2rem; font-weight: 800; color: var(--p); margin: 10px 0; display: block; }
-        .btn { width: 100%; padding: 16px; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-bottom: 10px; transition: 0.3s; }
-        .btn-main { background: var(--p); color: white; }
-        .btn-rec { background: var(--fail); color: white; }
-        #studyPage, #resultPage, #loginPage { display: none; }
-        .ai-feedback { background: #fff3e0; color: #d35400; padding: 12px; border-radius: 10px; margin: 10px 0; text-align: left; border-left: 4px solid #ff9800; display: none; font-size: 0.9rem; }
-        .tutor-box { background: #eef2ff; border: 1px solid #c7d2fe; padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: left; }
-        .tutor-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; border-bottom: 1px dashed #c7d2fe; padding-bottom: 5px; }
-        .tutor-btns { display: flex; gap: 5px; }
-        .btn-sm { padding: 5px 10px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.8rem; }
-        .leaderboard { text-align: left; background: #fffbe6; padding: 15px; border-radius: 15px; border: 1px solid #fed330; max-height: 200px; overflow-y: auto; }
-        .rank-item { display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #eee; }
-        .rank-me { background: #e8f5e9; font-weight: bold; color: #2ecc71; border: 1px solid #2ecc71; border-radius: 8px; }
-        input, select { width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 12px; margin-bottom: 12px; font-size: 1rem; box-sizing: border-box; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boost English Center - British English</title>
+    <style>
+        :root { --p: #003366; --bg: #f0f4f8; --success: #2ecc71; --fail: #d63031; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; padding: 10px; }
+        .app-card { background: white; width: 100%; max-width: 450px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: var(--p); color: white; padding: 15px; text-align: center; }
+        .content { padding: 20px; text-align: center; }
+        .word-card { background: #fff; border: 2px solid #eee; border-radius: 20px; padding: 15px; margin-bottom: 15px; }
+        .word-img { width: 100%; height: 180px; object-fit: cover; border-radius: 15px; background: #f0f0f0; }
+        .word-en { font-size: 2.2rem; font-weight: 800; color: var(--p); margin: 10px 0; display: block; }
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-bottom: 10px; transition: 0.3s; }
+        .btn-main { background: var(--p); color: white; }
+        .btn-rec { background: var(--fail); color: white; }
+        #studyPage, #resultPage, #loginPage { display: none; }
+        .ai-feedback { background: #fff3e0; color: #d35400; padding: 12px; border-radius: 10px; margin: 10px 0; text-align: left; border-left: 4px solid #ff9800; display: none; font-size: 0.9rem; }
+        .tutor-box { background: #eef2ff; border: 1px solid #c7d2fe; padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: left; }
+        .tutor-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; border-bottom: 1px dashed #c7d2fe; padding-bottom: 5px; }
+        .tutor-btns { display: flex; gap: 5px; }
+        .btn-sm { padding: 5px 10px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.8rem; }
+        .leaderboard { text-align: left; background: #fffbe6; padding: 15px; border-radius: 15px; border: 1px solid #fed330; max-height: 200px; overflow-y: auto; }
+        .rank-item { display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #eee; }
+        .rank-me { background: #e8f5e9; font-weight: bold; color: #2ecc71; border: 1px solid #2ecc71; border-radius: 8px; }
+        input, select { width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 12px; margin-bottom: 12px; font-size: 1rem; box-sizing: border-box; }
+    </style>
 </head>
 <body>
 
 <div class="app-card">
-    <div class="header">
-        <h3 style="margin:0">BOOST ENGLISH CENTER 🇬🇧</h3>
-        <p style="margin:5px 0 0; font-size:0.8rem;">Luyện phát âm giọng Anh - Anh (British English)</p>
-    </div>
+    <div class="header">
+        <h3 style="margin:0">BOOST ENGLISH CENTER 🇬🇧</h3>
+        <p style="margin:5px 0 0; font-size:0.8rem;">Luyện phát âm giọng Anh - Anh chuẩn</p>
+    </div>
 
-    <div class="content">
-        <div id="loading">🚀 Đang kết nối dữ liệu...</div>
-        
-        <div id="loginPage">
-            <input type="text" id="stName" placeholder="Tên của con...">
-            <select id="stClass"></select>
-            <button class="btn btn-main" onclick="startApp()">VÀO HỌC 🚀</button>
-        </div>
+    <div class="content">
+        <div id="loading">🚀 Đang kết nối dữ liệu...</div>
+        
+        <div id="loginPage">
+            <input type="text" id="stName" placeholder="Tên của con...">
+            <select id="stClass"></select>
+            <button class="btn btn-main" onclick="startApp()">VÀO HỌC 🚀</button>
+        </div>
 
-        <div id="studyPage">
-            <div id="prog" style="text-align:right; font-weight:bold; color:var(--p);">0/0</div>
-            <div class="word-card">
-                <img id="wImg" class="word-img" src="">
-                <span class="word-en" id="wEn">...</span>
-                <span id="wVi" style="color:#666">...</span>
-            </div>
-            <div style="margin-bottom:10px;"><small>🐢 Tốc độ nghe:</small> <input type="range" id="speedRate" min="0.4" max="1.0" step="0.1" value="0.8" style="width:60%; vertical-align: middle;"></div>
-            <div id="stat" style="font-weight:bold; margin-bottom:10px; color:#555">Sẵn sàng!</div>
-            <div id="aiTip" class="ai-feedback"></div>
-            
-            <button class="btn btn-main" onclick="playCurrent()">🔊 NGHE MẪU (ANH-ANH)</button>
-            <button class="btn btn-rec" onclick="rec()">🎤 BẤM ĐỂ ĐỌC</button>
-            <button class="btn" style="background:#888; color:white; display:none" id="btnSkip" onclick="next()">⏭️ BỎ QUA</button>
-        </div>
+        <div id="studyPage">
+            <div id="prog" style="text-align:right; font-weight:bold; color:var(--p);">0/0</div>
+            <div class="word-card">
+                <img id="wImg" class="word-img" src="">
+                <span class="word-en" id="wEn">...</span>
+                <span id="wVi" style="color:#666">...</span>
+            </div>
+            <div style="margin-bottom:10px;"><small>🐢 Tốc độ nghe:</small> <input type="range" id="speedRate" min="0.4" max="1.0" step="0.1" value="0.8" style="width:60%; vertical-align: middle;"></div>
+            <div id="stat" style="font-weight:bold; margin-bottom:10px; color:#555">Sẵn sàng!</div>
+            <div id="aiTip" class="ai-feedback"></div>
+            
+            <button class="btn btn-main" onclick="playCurrent()">🔊 NGHE MẪU (ANH-ANH)</button>
+            <button class="btn btn-rec" onclick="rec()">🎤 BẤM ĐỂ ĐỌC</button>
+            <button class="btn" style="background:#888; color:white; display:none" id="btnSkip" onclick="next()">⏭️ BỎ QUA</button>
+        </div>
 
-        <div id="resultPage">
-            <h2 style="color:var(--p); margin-bottom:5px;">ĐIỂM: <span id="fScore"></span>/10</h2>
-            <div id="tutorSection" class="tutor-box">
-                <strong style="color:#1e40af;">💡 CÁC TỪ CẦN LUYỆN LẠI:</strong>
-                <div id="tutorDetails" style="margin-top:8px;"></div>
-            </div>
-            <div class="leaderboard">
-                <strong>🏆 BẢNG XẾP HẠNG LỚP <span id="clsDisplay"></span>:</strong>
-                <div id="bContent" style="margin-top:10px;">Đang tải...</div>
-            </div>
-            <button class="btn btn-main" style="margin-top:20px" onclick="location.reload()">LUYỆN TẬP LẠI</button>
-        </div>
-    </div>
+        <div id="resultPage">
+            <h2 style="color:var(--p); margin-bottom:5px;">ĐIỂM: <span id="fScore"></span>/10</h2>
+            <div id="tutorSection" class="tutor-box">
+                <strong style="color:#1e40af;">💡 CÁC TỪ CẦN LUYỆN LẠI:</strong>
+                <div id="tutorDetails" style="margin-top:8px;"></div>
+            </div>
+            <div class="leaderboard">
+                <strong>🏆 BẢNG XẾP HẠNG LỚP <span id="clsDisplay"></span>:</strong>
+                <div id="bContent" style="margin-top:10px;">Đang tải...</div>
+            </div>
+            <button class="btn btn-main" style="margin-top:20px" onclick="location.reload()">LUYỆN TẬP LẠI</button>
+        </div>
+    </div>
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzEW7PSa7olxih6djXPL84lHUtlU0CvOoT9Tcud4LYp94PU57Vx75wo9KQWjvW8mgakkQ/exec';
-    const sheetID = '10_lZS6fipCVC8lk9SBU7tHNw1NnU0-6VKuwJsOh4vrk';
-    const base = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv`;
-    
-    let boostData = {}, curWords = [], curIdx = 0, totalPoints = 0, sName = "", cName = "", isWrongOnce = false;
-    let mistakeAdvice = [];
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzEW7PSa7olxih6djXPL84lHUtlU0CvOoT9Tcud4LYp94PU57Vx75wo9KQWjvW8mgakkQ/exec';
+    const sheetID = '10_lZS6fipCVC8lk9SBU7tHNw1NnU0-6VKuwJsOh4vrk';
+    const base = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv`;
+    
+    let boostData = {}, curWords = [], curIdx = 0, totalPoints = 0, sName = "", cName = "", isWrongOnce = false;
+    let mistakeAdvice = [];
 
-    const sndCorrect = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
-    const sndWrong = new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3');
+    const sndCorrect = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
+    const sndWrong = new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3');
 
-    // Cập nhật hàm phát âm Anh-Anh
-    function speak(text, rate = 0.8) {
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = 'en-GB'; // British English
-        msg.rate = rate;
-        
-        // Tìm giọng Anh-Anh trong hệ thống
-        const voices = window.speechSynthesis.getVoices();
-        const gbVoice = voices.find(v => v.lang === 'en-GB' || v.lang.includes('en_GB'));
-        if (gbVoice) msg.voice = gbVoice;
+    function speak(text, rate = 0.8) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = 'en-GB';
+        msg.rate = rate;
+        const voices = window.speechSynthesis.getVoices();
+        const gbVoice = voices.find(v => v.lang === 'en-GB' || v.lang.includes('en_GB'));
+        if (gbVoice) msg.voice = gbVoice;
+        setTimeout(() => { window.speechSynthesis.speak(msg); }, 50);
+    }
 
-        setTimeout(() => { window.speechSynthesis.speak(msg); }, 50);
-    }
+    function analyzeSpeech(target, heard) {
+        target = target.toLowerCase().trim(); heard = (heard || "").toLowerCase().trim();
+        if (!heard) return "Con đọc hơi nhỏ.";
+        if (target.endsWith('s') && !heard.endsWith('s')) return "Thiếu âm đuôi /s/.";
+        if (target.endsWith('t') && !heard.endsWith('t')) return "Thiếu âm cuối /t/.";
+        if (target.endsWith('k') && !heard.endsWith('k')) return "Thiếu âm bật /k/.";
+        return "Sai phát âm chính.";
+    }
 
-    function analyzeSpeech(target, heard) {
-        target = target.toLowerCase().trim(); heard = (heard || "").toLowerCase().trim();
-        if (!heard) return "Con đọc hơi nhỏ.";
-        if (target.endsWith('s') && !heard.endsWith('s')) return "Thiếu âm đuôi /s/.";
-        if (target.endsWith('t') && !heard.endsWith('t')) return "Thiếu âm cuối /t/.";
-        if (target.endsWith('k') && !heard.endsWith('k')) return "Thiếu âm bật /k/.";
-        return "Sai phát âm chính.";
-    }
+    async function loadData() {
+        window.speechSynthesis.getVoices();
+        try {
+            const r = await fetch(base);
+            const text = await r.text();
+            const rows = text.split('\n').slice(1);
+            rows.forEach(row => {
+                const c = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                let cls = (c[0]||"").replace(/"/g, '').trim();
+                let en = (c[1]||"").replace(/"/g, '').trim();
+                let vi = (c[2] || "").replace(/"/g, '').trim();
+                if (cls && en) {
+                    if (!boostData[cls]) boostData[cls] = [];
+                    boostData[cls].push({en, vi});
+                }
+            });
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'block';
+            let sel = document.getElementById('stClass');
+            Object.keys(boostData).forEach(k => sel.add(new Option("Lớp: " + k, k)));
+        } catch (e) { document.getElementById('loading').innerText = "❌ Lỗi kết nối!"; }
+    }
 
-    async function loadData() {
-        // Kích hoạt voices ngay khi load (Fix cho một số trình duyệt)
-        window.speechSynthesis.getVoices();
-        try {
-            const r = await fetch(base);
-            const text = await r.text();
-            const rows = text.split('\n').slice(1);
-            rows.forEach(row => {
-                const c = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                let cls = (c[0]||"").replace(/"/g, '').trim();
-                let en = (c[1]||"").replace(/"/g, '').trim();
-                let vi = (c[2] || "").replace(/"/g, '').trim();
-                if (cls && en) {
-                    if (!boostData[cls]) boostData[cls] = [];
-                    boostData[cls].push({en, vi});
-                }
-            });
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('loginPage').style.display = 'block';
-            let sel = document.getElementById('stClass');
-            Object.keys(boostData).forEach(k => sel.add(new Option("Lớp: " + k, k)));
-        } catch (e) { document.getElementById('loading').innerText = "❌ Lỗi kết nối!"; }
-    }
+    function startApp() {
+        sName = document.getElementById('stName').value.trim();
+        cName = document.getElementById('stClass').value;
+        if(!sName) return alert("Nhập tên nhé!");
+        sndCorrect.play().then(()=>sndCorrect.pause());
+        speak(""); 
+        document.getElementById('clsDisplay').innerText = cName;
+        document.getElementById('loginPage').style.display='none';
+        document.getElementById('studyPage').style.display='block';
+        curWords = boostData[cName];
+        show();
+    }
 
-    function startApp() {
-        sName = document.getElementById('stName').value.trim();
-        cName = document.getElementById('stClass').value;
-        if(!sName) return alert("Nhập tên nhé!");
-        
-        // Unlock âm thanh trên Mobile
-        sndCorrect.play().then(()=>sndCorrect.pause());
-        speak(""); 
+    function show() {
+        isWrongOnce = false;
+        document.getElementById('btnSkip').style.display = 'none';
+        document.getElementById('aiTip').style.display = 'none';
+        let w = curWords[curIdx];
+        document.getElementById('wEn').innerText = w.en;
+        document.getElementById('wVi').innerText = w.vi;
+        document.getElementById('wImg').src = `https://loremflickr.com/400/300/${encodeURIComponent(w.en)}`;
+        document.getElementById('prog').innerText = `${curIdx+1}/${curWords.length}`;
+        document.getElementById('stat').innerText = "Đến lượt con đọc!";
+    }
 
-        document.getElementById('clsDisplay').innerText = cName;
-        document.getElementById('loginPage').style.display='none';
-        document.getElementById('studyPage').style.display='block';
-        curWords = boostData[cName];
-        show();
-    }
+    function rec(customTarget = null) {
+        const Recognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+        if (!Recognition) return alert("Trình duyệt không hỗ trợ Mic!");
+        const recognition = new Recognition();
+        recognition.lang = 'en-GB';
+        recognition.interimResults = false;
+        const target = customTarget || curWords[curIdx].en.toLowerCase().trim();
+        document.getElementById('stat').innerText = "🎧 Đang nghe...";
+        recognition.onresult = (e) => {
+            let res = e.results[0][0].transcript.toLowerCase().trim().replace(/[.,?]/g,"");
+            if(res.includes(target)) {
+                sndCorrect.play();
+                if(!customTarget) {
+                    totalPoints += isWrongOnce ? 0.5 : 1;
+                    document.getElementById('stat').innerText = "🌟 CHÍNH XÁC!";
+                    setTimeout(() => next(), 1200);
+                } else alert("🌟 Giỏi lắm! Con đã sửa được rồi.");
+            } else {
+                sndWrong.play();
+                if(!customTarget) {
+                    if (!isWrongOnce) mistakeAdvice.push({en: target, tip: analyzeSpeech(target, res)});
+                    isWrongOnce = true;
+                    document.getElementById('stat').innerText = "❌ Thử lại nhé!";
+                    document.getElementById('aiTip').style.display = 'block';
+                    document.getElementById('aiTip').innerHTML = `AI nghe: "${res}"`;
+                    document.getElementById('btnSkip').style.display = 'block';
+                } else alert("❌ Vẫn chưa đúng, nghe mẫu lại nhé!");
+            }
+        };
+        recognition.onerror = () => { document.getElementById('stat').innerText = "Lỗi micrô!"; };
+        recognition.start();
+    }
 
-    function show() {
-        isWrongOnce = false;
-        document.getElementById('btnSkip').style.display = 'none';
-        document.getElementById('aiTip').style.display = 'none';
-        let w = curWords[curIdx];
-        document.getElementById('wEn').innerText = w.en;
-        document.getElementById('wVi').innerText = w.vi;
-        document.getElementById('wImg').src = `https://loremflickr.com/400/300/${encodeURIComponent(w.en)}`;
-        document.getElementById('prog').innerText = `${curIdx+1}/${curWords.length}`;
-        document.getElementById('stat').innerText = "Đến lượt con đọc!";
-    }
+    function next() { if(curIdx < curWords.length - 1) { curIdx++; show(); } else finish(); }
+    function playCurrent() { speak(curWords[curIdx].en, document.getElementById('speedRate').value); }
 
-    function rec(customTarget = null) {
-        const Recognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-        if (!Recognition) return alert("Trình duyệt không hỗ trợ Mic!");
+    // ĐÂY LÀ HÀM FINISH BẠN CẦN:
+    async function finish() {
+        document.getElementById('studyPage').style.display = 'none';
+        document.getElementById('resultPage').style.display = 'block';
+        let score = ((totalPoints / curWords.length) * 10).toFixed(1);
+        if(score > 10) score = 10;
+        document.getElementById('fScore').innerText = score;
 
-        const recognition = new Recognition();
-        recognition.lang = 'en-GB'; // Nhận diện theo chuẩn Anh-Anh
-        recognition.interimResults = false;
+        let feedbackForSheet = mistakeAdvice.length > 0 ? "Cần luyện: " + mistakeAdvice.map(m => `${m.en}`).join(", ") : "Hoàn hảo!";
 
-        const target = customTarget || curWords[curIdx].en.toLowerCase().trim();
-        document.getElementById('stat').innerText = "🎧 Đang nghe...";
+        document.getElementById('tutorDetails').innerHTML = mistakeAdvice.length > 0 ? 
+            mistakeAdvice.map(m => `
+                <div class="tutor-item">
+                    <span><b>${m.en}</b>: <small>${m.tip}</small></span>
+                    <div class="tutor-btns">
+                        <button class="btn-sm" style="background:#003366; color:white;" onclick="speak('${m.en}')">🔊</button>
+                        <button class="btn-sm" style="background:#d63031; color:white;" onclick="rec('${m.en}')">🎤</button>
+                    </div>
+                </div>`).join('') : "🌟 Tuyệt vời! Con không sai từ nào.";
 
-        recognition.onresult = (e) => {
-            let res = e.results[0][0].transcript.toLowerCase().trim().replace(/[.,?]/g,"");
-            if(res.includes(target)) {
-                sndCorrect.play();
-                if(!customTarget) {
-                    totalPoints += isWrongOnce ? 0.5 : 1;
-                    document.getElementById('stat').innerText = "🌟 CHÍNH XÁC!";
-                    setTimeout(() => next(), 1200);
-                } else alert("🌟 Giỏi lắm! Con đã sửa được rồi.");
-            } else {
-                sndWrong.play();
-                if(!customTarget) {
-                    if (!isWrongOnce) mistakeAdvice.push({en: target, tip: analyzeSpeech(target, res)});
-                    isWrongOnce = true;
-                    document.getElementById('stat').innerText = "❌ Thử lại nhé!";
-                    document.getElementById('aiTip').style.display = 'block';
-                    document.getElementById('aiTip').innerHTML = `AI nghe: "${res}"`;
-                    document.getElementById('btnSkip').style.display = 'block';
-                } else alert("❌ Vẫn chưa đúng, nghe mẫu lại nhé!");
-            }
-        };
-        
-        recognition.onerror = () => { document.getElementById('stat').innerText = "Lỗi micrô!"; };
-        recognition.start();
-    }
+        try {
+            const res = await fetch(`${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${score}&feedback=${encodeURIComponent(feedbackForSheet)}`);
+            const allData = await res.json();
+            
+            // Xếp hạng: r[1] là Họ Tên, r[2] là Lớp, r[3] là Điểm (Dựa trên ảnh Sheet)
+            let ranks = allData
+                .filter(r => r && String(r[2]) === cName) 
+                .map(r => {
+                    let s = parseFloat(String(r[3]).replace(/,/g, '.')) || 0;
+                    return { n: String(r[1]), s: s };
+                })
+                .sort((a, b) => b.s - a.s);
 
-    function next() { if(curIdx < curWords.length - 1) { curIdx++; show(); } else finish(); }
-    function playCurrent() { speak(curWords[curIdx].en, document.getElementById('speedRate').value); }
+            document.getElementById('bContent').innerHTML = ranks.slice(0, 10).map((r, i) => 
+                `<div class="rank-item ${r.n === sName ? 'rank-me' : ''}">
+                    <span>${i + 1}. ${r.n}</span><strong>${r.s.toFixed(1)}đ</strong>
+                </div>`).join('');
+        } catch (e) { 
+            document.getElementById('bContent').innerText = "Đã lưu kết quả!"; 
+        }
+    }
 
-    async function finish() {
-        document.getElementById('studyPage').style.display = 'none';
-        document.getElementById('resultPage').style.display = 'block';
-        let score = ((totalPoints / curWords.length) * 10).toFixed(1);
-        if(score > 10) score = 10;
-        document.getElementById('fScore').innerText = score;
-
-        let feedbackForSheet = mistakeAdvice.length > 0 ? "Cần luyện: " + mistakeAdvice.map(m => `${m.en}`).join(", ") : "Hoàn hảo!";
-
-        document.getElementById('tutorDetails').innerHTML = mistakeAdvice.length > 0 ? 
-            mistakeAdvice.map(m => `
-                <div class="tutor-item">
-                    <span><b>${m.en}</b>: <small>${m.tip}</small></span>
-                    <div class="tutor-btns">
-                        <button class="btn-sm" style="background:#003366; color:white;" onclick="speak('${m.en}')">🔊</button>
-                        <button class="btn-sm" style="background:#d63031; color:white;" onclick="rec('${m.en}')">🎤</button>
-                    </div>
-                </div>`).join('') : "🌟 Tuyệt vời! Con không sai từ nào.";
-
-        try {
-            const res = await fetch(`${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${score}&feedback=${encodeURIComponent(feedbackForSheet)}`);
-            const allData = await res.json();
-            let ranks = allData
-                .filter(r => r && String(r[1]) === cName)
-                .map(r => ({ n: String(r[0]), s: parseFloat(r[2]) || 0 }))
-                .sort((a,b) => b.s - a.s);
-            document.getElementById('bContent').innerHTML = ranks.slice(0,10).map((r, i) => 
-                `<div class="rank-item ${r.n === sName ? 'rank-me' : ''}">
-                    <span>${i+1}. ${r.n}</span><strong>${r.s.toFixed(1)}đ</strong>
-                </div>`).join('');
-        } catch (e) { document.getElementById('bContent').innerText = "Đã lưu kết quả!"; }
-    }
-    window.onload = loadData;
+    window.onload = loadData;
 </script>
 </body>
-</html>
+</html> 
+Là mã này cập nhập sữa các lỗi rồi đúng không, xoá cũ dán code mới vào là đượcc đúng không
