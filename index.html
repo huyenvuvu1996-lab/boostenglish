@@ -33,7 +33,7 @@
 <div class="app-card">
     <div class="header">
         <h3 style="margin:0">BOOST ENGLISH CENTER 🇬🇧</h3>
-        <p style="margin:5px 0 0; font-size:0.8rem;">Luyện phát âm giọng Anh - Anh chuẩn</p>
+        <p style="margin:5px 0 0; font-size:0.8rem;">Cùng Boost luyện nói tiếng Anh mỗi ngày</p>
     </div>
 
     <div class="content">
@@ -77,7 +77,7 @@
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxFnBwkxKRfZkS6CNExh6JKBEb7b6r6gs-TE4jqqKsoSoTUos3DTFSJquWX86owQ8b9-A/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzAF5KpILMs0iwWJPWhn7gVQY9H7Muy1d2iw-SKnw-3KMhG89tqU6_q4vI-7MmMcvX6kA/exec';
     const sheetID = '10_lZS6fipCVC8lk9SBU7tHNw1NnU0-6VKuwJsOh4vrk';
     const base = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv`;
     
@@ -191,51 +191,51 @@
     function next() { if(curIdx < curWords.length - 1) { curIdx++; show(); } else finish(); }
     function playCurrent() { speak(curWords[curIdx].en, document.getElementById('speedRate').value); }
 
-    // ĐÂY LÀ HÀM FINISH BẠN CẦN:
     async function finish() {
-        document.getElementById('studyPage').style.display = 'none';
-        document.getElementById('resultPage').style.display = 'block';
-        let score = ((totalPoints / curWords.length) * 10).toFixed(1);
-        if(score > 10) score = 10;
-        document.getElementById('fScore').innerText = score;
+        document.getElementById('studyPage').style.display = 'none';
+        document.getElementById('resultPage').style.display = 'block';
+        
+        let score = ((totalPoints / curWords.length) * 10).toFixed(1);
+        if(score > 10) score = 10;
+        document.getElementById('fScore').innerText = score;
 
-        let feedbackForSheet = mistakeAdvice.length > 0 ? "Cần luyện: " + mistakeAdvice.map(m => `${m.en}`).join(", ") : "Hoàn hảo!";
+        let feedbackForSheet = mistakeAdvice.length > 0 ? "Cần luyện: " + mistakeAdvice.map(m => `${m.en}`).join(", ") : "Hoàn hảo!";
 
-        document.getElementById('tutorDetails').innerHTML = mistakeAdvice.length > 0 ? 
-            mistakeAdvice.map(m => `
-                <div class="tutor-item">
-                    <span><b>${m.en}</b>: <small>${m.tip}</small></span>
-                    <div class="tutor-btns">
-                        <button class="btn-sm" style="background:#003366; color:white;" onclick="speak('${m.en}')">🔊</button>
-                        <button class="btn-sm" style="background:#d63031; color:white;" onclick="rec('${m.en}')">🎤</button>
-                    </div>
-                </div>`).join('') : "🌟 Tuyệt vời! Con không sai từ nào.";
+        document.getElementById('tutorDetails').innerHTML = mistakeAdvice.length > 0 ? 
+            mistakeAdvice.map(m => `
+                <div class="tutor-item">
+                    <span><b>${m.en}</b>: <small>${m.tip}</small></span>
+                    <div class="tutor-btns">
+                        <button class="btn-sm" style="background:#003366; color:white;" onclick="speak('${m.en}')">🔊</button>
+                        <button class="btn-sm" style="background:#d63031; color:white;" onclick="rec('${m.en}')">🎤</button>
+                    </div>
+                </div>`).join('') : "🌟 Tuyệt vời! Con không sai từ nào.";
 
-        try {
-            const res = await fetch(`${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${score}&feedback=${encodeURIComponent(feedbackForSheet)}`);
-            const allData = await res.json();
-            
-            // Xếp hạng: r[1] là Họ Tên, r[2] là Lớp, r[3] là Điểm (Dựa trên ảnh Sheet)
-            let ranks = allData
-                .filter(r => r && String(r[2]) === cName) 
-                .map(r => {
-                    let s = parseFloat(String(r[3]).replace(/,/g, '.')) || 0;
-                    return { n: String(r[1]), s: s };
-                })
-                .sort((a, b) => b.s - a.s);
+        try {
+            const res = await fetch(`${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${score}&feedback=${encodeURIComponent(feedbackForSheet)}`);
+            const allData = await res.json();
+            
+            // --- ĐOẠN BẠN CẦN THAY THẾ NẰM Ở ĐÂY ---
+            let ranks = allData
+                .filter(r => r && String(r[2]) === cName) // Lọc theo cột C (Lớp)
+                .map(r => {
+                    // Ép kiểu điểm số từ cột D (index 3)
+                    let scoreVal = parseFloat(String(r[3]).replace(/,/g, '.')) || 0;
+                    return { 
+                        n: String(r[1]), // Lấy tên từ cột B (index 1)
+                        s: scoreVal      // Lấy điểm từ cột D (index 3)
+                    };
+                })
+                .filter(item => item.s <= 10) // Chống lỗi bốc nhầm năm 2026 (năm > 10)
+                .sort((a, b) => b.s - a.s); 
 
-            document.getElementById('bContent').innerHTML = ranks.slice(0, 10).map((r, i) => 
-                `<div class="rank-item ${r.n === sName ? 'rank-me' : ''}">
-                    <span>${i + 1}. ${r.n}</span><strong>${r.s.toFixed(1)}đ</strong>
-                </div>`).join('');
-        } catch (e) { 
-            document.getElementById('bContent').innerText = "Đã lưu kết quả!"; 
-        }
-    }
+            document.getElementById('bContent').innerHTML = ranks.slice(0, 10).map((r, i) => 
+                `<div class="rank-item ${r.n === sName ? 'rank-me' : ''}">
+                    <span>${i + 1}. ${r.n}</span><strong>${r.s.toFixed(1)}đ</strong>
+                </div>`).join('');
+            // --- KẾT THÚC ĐOẠN THAY THẾ ---
 
-    window.onload = loadData;
-</script>
-</body>
-</html> 
-
-
+        } catch (e) { 
+            document.getElementById('bContent').innerText = "Đã lưu kết quả!"; 
+        }
+    }
