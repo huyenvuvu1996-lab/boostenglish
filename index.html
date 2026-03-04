@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Boost English Center - British Voice</title>
+    <!-- ResponsiveVoice API - Miễn phí cho giáo dục -->
+    <script src="https://code.responsivevoice.org/responsivevoice.js?key=r5W2d8qU"></script>
     <style>
         :root { --p: #003366; --bg: #f0f4f8; --success: #2ecc71; --fail: #d63031; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; justify-content: center; }
@@ -31,7 +33,7 @@
 <div class="app-card">
     <div class="header">
         <h3 style="margin:0">BOOST ENGLISH CENTER 🇬🇧</h3>
-        <p style="margin:5px 0 0; font-size:0.8rem;">Luyện nói chuẩn giọng Anh - Anh</p>
+        <p style="margin:5px 0 0; font-size:0.8rem;">Cùng Boost luyện nói tiếng Anh mỗi ngày</p>
     </div>
 
     <div class="content">
@@ -56,7 +58,7 @@
             
             <button class="btn btn-main" onclick="playCurrent()">🔊 NGHE MẪU</button>
             <button class="btn btn-rec" onclick="rec()">🎤 BẤM ĐỂ ĐỌC</button>
-            <button class="btn" style="background:#888; color:white; display:none" id="btnSkip" onclick="next()">⏭️ BỎ QUA</button>
+            <button class="btn" style="background:#888; color:white; " id="btnSkip" onclick="next()">⏭️ BỎ QUA</button>
         </div>
 
         <div id="resultPage">
@@ -78,6 +80,7 @@
     const scriptURL = 'https://script.google.com/macros/s/AKfycbxdYX14dwmiUEoUcEKdG18wr-8D6i2I2BM0QMc5jq9TxYjQIiXT31dlUOQ0IRFmy4tulw/exec';
     const sheetID = '10_lZS6fipCVC8lk9SBU7tHNw1NnU0-6VKuwJsOh4vrk';
     const base = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv`;
+    const PIXABAY_KEY = '54889597-524a0665f006290bd244e9617';
     
     let boostData = {}, curWords = [], curIdx = 0, totalPoints = 0, sName = "", cName = "";
     let isWrongOnce = false, mistakeAdvice = [];
@@ -139,14 +142,35 @@
 
     function show() {
         isWrongOnce = false;
-        document.getElementById('btnSkip').style.display = 'none';
+        // document.getElementById('btnSkip').style.display = 'none';
         document.getElementById('aiTip').style.display = 'none';
         let w = curWords[curIdx];
         document.getElementById('wEn').innerText = w.en;
         document.getElementById('wVi').innerText = w.vi;
-        document.getElementById('wImg').src = `https://loremflickr.com/400/300/${encodeURIComponent(w.en)}`;
+        setWordImage(w.en);
         document.getElementById('prog').innerText = `${curIdx+1}/${curWords.length}`;
         document.getElementById('stat').innerText = "Đến lượt con đọc!";
+    }
+
+    async function setWordImage(keyword) {  
+        const imgEl = document.getElementById('wImg');
+        const dummyUrl = `https://dummyimage.com/400x300/90a4ae/fff&text=${encodeURIComponent(keyword)}`;
+        try {
+            // Bước 1: Wikipedia
+            const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(keyword)}&prop=pageimages&format=json&pithumbsize=400&origin=*`;
+            const wikiData = await (await fetch(wikiUrl)).json();
+            const page = Object.values(wikiData.query.pages)[0];
+            if (page?.thumbnail?.source) {
+                imgEl.src = page.thumbnail.source;
+                return;
+            }
+            // Bước 2: Wiki không có ảnh → thử Pixabay với image_type=vector
+            const pixUrl = `https://pixabay.com/api/?key=${PIXABAY_KEY}&q=${encodeURIComponent(keyword)}&image_type=vector&safesearch=true&per_page=3&order=popular`;
+            const pixData = await (await fetch(pixUrl)).json();
+            imgEl.src = pixData.hits?.[0]?.webformatURL || dummyUrl;
+        } catch {
+            imgEl.src = dummyUrl;
+        }
     }
 
     function rec(customTarget = null) {
@@ -188,11 +212,16 @@
     
     function playCurrent() { 
         initAudio();
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(curWords[curIdx].en);
-        msg.lang = 'en-GB';
-        msg.rate = document.getElementById('speedRate').value;
-        window.speechSynthesis.speak(msg);
+        const text = curWords[curIdx].en;
+        const rate = document.getElementById('speedRate').value;
+        
+        // Dùng ResponsiveVoice cho giọng British đồng nhất
+        if (window.responsiveVoice) {
+            responsiveVoice.speak(text, "UK English Female", {
+                rate: rate,
+                pitch: 1
+            });
+        } 
     }
 
     async function finish() {
