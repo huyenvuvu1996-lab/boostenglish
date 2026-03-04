@@ -3,27 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Boost English Center - British English</title>
+    <title>Boost English Center - British Voice</title>
     <style>
         :root { --p: #003366; --bg: #f0f4f8; --success: #2ecc71; --fail: #d63031; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; padding: 10px; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; justify-content: center; }
         .app-card { background: white; width: 100%; max-width: 450px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); overflow: hidden; }
         .header { background: var(--p); color: white; padding: 15px; text-align: center; }
         .content { padding: 20px; text-align: center; }
         .word-card { background: #fff; border: 2px solid #eee; border-radius: 20px; padding: 15px; margin-bottom: 15px; }
         .word-img { width: 100%; height: 180px; object-fit: cover; border-radius: 15px; background: #f0f0f0; }
         .word-en { font-size: 2.2rem; font-weight: 800; color: var(--p); margin: 10px 0; display: block; }
-        .btn { width: 100%; padding: 16px; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-bottom: 10px; transition: 0.3s; }
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-bottom: 10px; transition: 0.3s; touch-action: manipulation; }
         .btn-main { background: var(--p); color: white; }
         .btn-rec { background: var(--fail); color: white; }
         #studyPage, #resultPage, #loginPage { display: none; }
-        .ai-feedback { background: #fff3e0; color: #d35400; padding: 12px; border-radius: 10px; margin: 10px 0; text-align: left; border-left: 4px solid #ff9800; display: none; font-size: 0.9rem; }
+        .ai-feedback { background: #fff3e0; color: #d35400; padding: 12px; border-radius: 10px; margin: 10px 0; text-align: left; border-left: 4px solid #ff9800; display: none; font-size: 0.85rem; }
         .tutor-box { background: #eef2ff; border: 1px solid #c7d2fe; padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: left; }
         .tutor-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; border-bottom: 1px dashed #c7d2fe; padding-bottom: 5px; }
-        .tutor-btns { display: flex; gap: 5px; }
-        .btn-sm { padding: 5px 10px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.8rem; }
-        .leaderboard { text-align: left; background: #fffbe6; padding: 15px; border-radius: 15px; border: 1px solid #fed330; max-height: 200px; overflow-y: auto; }
-        .rank-item { display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #eee; }
+        .leaderboard { text-align: left; background: #fffbe6; padding: 15px; border-radius: 15px; border: 1px solid #fed330; max-height: 250px; overflow-y: auto; }
+        .rank-item { display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
         .rank-me { background: #e8f5e9; font-weight: bold; color: #2ecc71; border: 1px solid #2ecc71; border-radius: 8px; }
         input, select { width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 12px; margin-bottom: 12px; font-size: 1rem; box-sizing: border-box; }
     </style>
@@ -33,7 +31,7 @@
 <div class="app-card">
     <div class="header">
         <h3 style="margin:0">BOOST ENGLISH CENTER 🇬🇧</h3>
-        <p style="margin:5px 0 0; font-size:0.8rem;">Cùng Boost luyện nói tiếng Anh mỗi ngày</p>
+        <p style="margin:5px 0 0; font-size:0.8rem;">Luyện nói chuẩn giọng Anh - Anh</p>
     </div>
 
     <div class="content">
@@ -52,24 +50,24 @@
                 <span class="word-en" id="wEn">...</span>
                 <span id="wVi" style="color:#666">...</span>
             </div>
-            <div style="margin-bottom:10px;"><small>🐢 Tốc độ nghe:</small> <input type="range" id="speedRate" min="0.4" max="1.0" step="0.1" value="0.8" style="width:60%; vertical-align: middle;"></div>
+            <div style="margin-bottom:10px;"><small>🐢 Tốc độ nghe:</small> <input type="range" id="speedRate" min="0.4" max="1.0" step="0.1" value="0.8"></div>
             <div id="stat" style="font-weight:bold; margin-bottom:10px; color:#555">Sẵn sàng!</div>
             <div id="aiTip" class="ai-feedback"></div>
             
-            <button class="btn btn-main" onclick="playCurrent()">🔊 NGHE MẪU (ANH-ANH)</button>
+            <button class="btn btn-main" onclick="playCurrent()">🔊 NGHE MẪU</button>
             <button class="btn btn-rec" onclick="rec()">🎤 BẤM ĐỂ ĐỌC</button>
             <button class="btn" style="background:#888; color:white; display:none" id="btnSkip" onclick="next()">⏭️ BỎ QUA</button>
         </div>
 
         <div id="resultPage">
-            <h2 style="color:var(--p); margin-bottom:5px;">ĐIỂM: <span id="fScore"></span>/10</h2>
-            <div id="tutorSection" class="tutor-box">
-                <strong style="color:#1e40af;">💡 CÁC TỪ CẦN LUYỆN LẠI:</strong>
+            <h2 style="color:var(--p);">KẾT QUẢ: <span id="fScore"></span>/10</h2>
+            <div class="tutor-box">
+                <strong style="color:#1e40af;">💡 NHẬN XÉT CHI TIẾT AI:</strong>
                 <div id="tutorDetails" style="margin-top:8px;"></div>
             </div>
             <div class="leaderboard">
                 <strong>🏆 BẢNG XẾP HẠNG LỚP <span id="clsDisplay"></span>:</strong>
-                <div id="bContent" style="margin-top:10px;">Đang tải...</div>
+                <div id="bContent" style="margin-top:10px;"></div>
             </div>
             <button class="btn btn-main" style="margin-top:20px" onclick="location.reload()">LUYỆN TẬP LẠI</button>
         </div>
@@ -77,40 +75,34 @@
 </div>
 
 <script>
-    // URL Web App từ Apps Script của bạn
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyMQCk5HUVYxGlfXPWWGPbmj5_BkUP0V7snZqOF3kb9wI8IkrQWc8URUOXaq3kycd6G-w/exec';
+    // Link Web App của bạn
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxdYX14dwmiUEoUcEKdG18wr-8D6i2I2BM0QMc5jq9TxYjQIiXT31dlUOQ0IRFmy4tulw/exec';
     const sheetID = '10_lZS6fipCVC8lk9SBU7tHNw1NnU0-6VKuwJsOh4vrk';
     const base = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv`;
     
-    let boostData = {}, curWords = [], curIdx = 0, totalPoints = 0, sName = "", cName = "", isWrongOnce = false;
-    let mistakeAdvice = [];
+    let boostData = {}, curWords = [], curIdx = 0, totalPoints = 0, sName = "", cName = "";
+    let isWrongOnce = false, mistakeAdvice = [];
 
     const sndCorrect = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
     const sndWrong = new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3');
 
-    // FIX IPHONE: Khởi tạo AudioContext khi tương tác
+    // FIX IPHONE: Đánh thức AudioContext
     let audioCtx;
     function initAudio() {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
     }
 
-    function speak(text, rate = 0.8) {
-        initAudio();
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = 'en-GB';
-        msg.rate = rate;
-        window.speechSynthesis.speak(msg);
-    }
-
+    // AI Phân tích chi tiết âm
     function analyzeSpeech(target, heard) {
-        target = target.toLowerCase().trim(); heard = (heard || "").toLowerCase().trim();
-        if (!heard) return "Con đọc hơi nhỏ.";
-        if (target.endsWith('s') && !heard.endsWith('s')) return "Thiếu âm đuôi /s/.";
-        if (target.endsWith('t') && !heard.endsWith('t')) return "Thiếu âm cuối /t/.";
-        if (target.endsWith('k') && !heard.endsWith('k')) return "Thiếu âm bật /k/.";
-        return "Sai phát âm chính.";
+        target = target.toLowerCase().trim();
+        heard = (heard || "").toLowerCase().trim();
+        if (!heard) return "Âm thanh quá nhỏ.";
+        let tips = [];
+        if (target.endsWith('s') && !heard.endsWith('s')) tips.push("thiếu âm đuôi /s/");
+        if (target.endsWith('t') && !heard.endsWith('t')) tips.push("thiếu bật hơi /t/");
+        if (target.endsWith('k') && !heard.endsWith('k')) tips.push("thiếu âm chặn /k/");
+        return tips.length > 0 ? "Gợi ý: " + tips.join(", ") : "Phát âm chưa rõ.";
     }
 
     async function loadData() {
@@ -138,7 +130,7 @@
     function startApp() {
         sName = document.getElementById('stName').value.trim();
         cName = document.getElementById('stClass').value;
-        if(!sName) return alert("Nhập tên nhé!");
+        if(!sName) return alert("Con chưa nhập tên!");
         initAudio();
         document.getElementById('clsDisplay').innerText = cName;
         document.getElementById('loginPage').style.display='none';
@@ -162,11 +154,10 @@
     function rec(customTarget = null) {
         initAudio();
         const Recognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-        if (!Recognition) return alert("iPhone hãy dùng Safari để dùng Mic!");
+        if (!Recognition) return alert("iPhone hãy mở bằng Safari để dùng Mic!");
         
         const recognition = new Recognition();
         recognition.lang = 'en-GB';
-        recognition.interimResults = false;
         const target = (customTarget || curWords[curIdx].en).toLowerCase().trim();
         document.getElementById('stat').innerText = "🎧 Đang nghe...";
 
@@ -178,69 +169,72 @@
                     totalPoints += isWrongOnce ? 0.5 : 1;
                     document.getElementById('stat').innerText = "🌟 CHÍNH XÁC!";
                     setTimeout(() => next(), 1200);
-                } else alert("🌟 Giỏi lắm! Con đã sửa được rồi.");
+                } else alert("Giỏi lắm! Con đã sửa đúng.");
             } else {
                 sndWrong.play();
+                let tip = analyzeSpeech(target, res);
                 if(!customTarget) {
-                    if (!isWrongOnce) mistakeAdvice.push({en: target, tip: analyzeSpeech(target, res)});
+                    if (!isWrongOnce) mistakeAdvice.push({en: target, tip: tip});
                     isWrongOnce = true;
                     document.getElementById('stat').innerText = "❌ Thử lại nhé!";
                     document.getElementById('aiTip').style.display = 'block';
-                    document.getElementById('aiTip').innerHTML = `AI nghe: "${res}"`;
+                    document.getElementById('aiTip').innerHTML = `AI nghe: "${res}"<br><small>${tip}</small>`;
                     document.getElementById('btnSkip').style.display = 'block';
                 }
             }
         };
-        recognition.onerror = () => { document.getElementById('stat').innerText = "Lỗi micrô!"; };
         recognition.start();
     }
 
     function next() { if(curIdx < curWords.length - 1) { curIdx++; show(); } else finish(); }
-    function playCurrent() { speak(curWords[curIdx].en, document.getElementById('speedRate').value); }
+    
+    function playCurrent() { 
+        initAudio();
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(curWords[curIdx].en);
+        msg.lang = 'en-GB';
+        msg.rate = document.getElementById('speedRate').value;
+        window.speechSynthesis.speak(msg);
+    }
 
     async function finish() {
         document.getElementById('studyPage').style.display = 'none';
         document.getElementById('resultPage').style.display = 'block';
         
         let score = ((totalPoints / curWords.length) * 10).toFixed(1);
-        if(score > 10) score = 10.0;
         document.getElementById('fScore').innerText = score;
 
-        let feedbackForSheet = mistakeAdvice.length > 0 ? "Cần luyện: " + mistakeAdvice.map(m => `${m.en}`).join(", ") : "Hoàn hảo!";
+        // Tổng hợp nhận xét chi tiết gửi về Sheet cột E
+        let feedbackForSheet = mistakeAdvice.length > 0 
+            ? "Cần luyện: " + mistakeAdvice.map(m => `${m.en} (${m.tip})`).join(" | ") 
+            : "Phát âm rất tốt!";
 
         document.getElementById('tutorDetails').innerHTML = mistakeAdvice.length > 0 ? 
             mistakeAdvice.map(m => `
                 <div class="tutor-item">
                     <span><b>${m.en}</b>: <small>${m.tip}</small></span>
-                    <div class="tutor-btns">
-                        <button class="btn-sm" style="background:#003366; color:white;" onclick="speak('${m.en}')">🔊</button>
-                        <button class="btn-sm" style="background:#d63031; color:white;" onclick="rec('${m.en}')">🎤</button>
-                    </div>
-                </div>`).join('') : "🌟 Tuyệt vời! Con không sai từ nào.";
+                    <button class="btn-sm" style="background:var(--p); color:white; border:none; padding:5px 10px; border-radius:5px;" onclick="rec('${m.en}')">🎤 Sửa</button>
+                </div>`).join('') : "🌟 Tuyệt vời!";
 
         try {
-            // GỬI ĐẦY ĐỦ 5 CỘT SANG APP SCRIPT (bao gồm &feedback)
             const res = await fetch(`${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${score}&feedback=${encodeURIComponent(feedbackForSheet)}`);
             const allData = await res.json();
             
-            // XỬ LÝ BẢNG XẾP HẠNG (Chống lỗi hiện năm 2026)
+            // Xếp hạng từ cao xuống thấp
             let ranks = allData
-                .filter(r => r && String(r[2]) === cName) // Cột C (Lớp)
-                .map(r => {
-                    let scoreVal = parseFloat(String(r[3]).replace(/,/g, '.')) || 0; // Cột D (Điểm)
-                    return { n: String(r[1]), s: scoreVal }; // Cột B (Tên)
-                })
-                .filter(item => item.s <= 10) // CHỐNG LỖI HIỆN NĂM (Năm 2026 > 10)
+                .filter(r => r && String(r[2]) === cName)
+                .map(r => ({
+                    n: String(r[1]),
+                    s: parseFloat(String(r[3]).replace(/,/g, '.')) || 0
+                }))
+                .filter(item => item.s <= 10)
                 .sort((a, b) => b.s - a.s); 
 
-            document.getElementById('bContent').innerHTML = ranks.slice(0, 10).map((r, i) => 
+            document.getElementById('bContent').innerHTML = ranks.map((r, i) => 
                 `<div class="rank-item ${r.n === sName ? 'rank-me' : ''}">
                     <span>${i + 1}. ${r.n}</span><strong>${r.s.toFixed(1)}đ</strong>
                 </div>`).join('');
-
-        } catch (e) { 
-            document.getElementById('bContent').innerText = "Đã lưu kết quả thành công!"; 
-        }
+        } catch (e) { document.getElementById('bContent').innerText = "Đã lưu điểm thành công!"; }
     }
 
     window.onload = loadData;
