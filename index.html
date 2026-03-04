@@ -26,6 +26,17 @@
         .rank-item { display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
         .rank-me { background: #e8f5e9; font-weight: bold; color: #2ecc71; border: 1px solid #2ecc71; border-radius: 8px; }
         input, select { width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 12px; margin-bottom: 12px; font-size: 1rem; box-sizing: border-box; }
+        .spinner { display: inline-block; width: 22px; height: 22px; border: 3px solid #fed330; border-top-color: #003366; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .listening { color: var(--fail); animation: pulse 1s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.05); } }
+        .mic-wave { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--fail); margin: 0 2px; animation: wave 0.8s ease-in-out infinite; }
+        .mic-wave:nth-child(2) { animation-delay: 0.15s; }
+        .mic-wave:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes wave { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(2); } }
+        .btn-rec-result { transition: background 0.2s; min-width: 70px; }
+        .btn-rec-result.recording { background: var(--fail) !important; animation: pulse 0.7s ease-in-out infinite; }
+        .rec-feedback { font-size: 0.78rem; min-height: 1.1em; margin-top: 3px; }
     </style>
 </head>
 <body>
@@ -58,7 +69,7 @@
             
             <button class="btn btn-main" onclick="playCurrent()">🔊 NGHE MẪU</button>
             <button class="btn btn-rec" onclick="rec()">🎤 BẤM ĐỂ ĐỌC</button>
-            <button class="btn" style="background:#888; color:white; " id="btnSkip" onclick="next()">⏭️ BỎ QUA</button>
+            <button class="btn" style="background:#888; color:white;" id="btnSkip" onclick="next()">⏭️ BỎ QUA</button>
         </div>
 
         <div id="resultPage">
@@ -149,6 +160,7 @@
         document.getElementById('wVi').innerText = w.vi;
         setWordImage(w.en);
         document.getElementById('prog').innerText = `${curIdx+1}/${curWords.length}`;
+        document.getElementById('stat').className = '';
         document.getElementById('stat').innerText = "Đến lượt con đọc!";
     }
 
@@ -181,12 +193,14 @@
         const recognition = new Recognition();
         recognition.lang = 'en-GB';
         const target = (customTarget || curWords[curIdx].en).toLowerCase().trim();
-        document.getElementById('stat').innerText = "🎧 Đang nghe...";
+        document.getElementById('stat').className = 'listening';
+        document.getElementById('stat').innerHTML = `🎧 Đang nghe <span class="mic-wave"></span><span class="mic-wave"></span><span class="mic-wave"></span>`;
 
         recognition.onresult = (e) => {
             let res = e.results[0][0].transcript.toLowerCase().trim().replace(/[.,?]/g,"");
             if(res.includes(target)) {
                 sndCorrect.play();
+                document.getElementById('stat').className = '';
                 if(!customTarget) {
                     totalPoints += isWrongOnce ? 0.5 : 1;
                     document.getElementById('stat').innerText = "🌟 CHÍNH XÁC!";
@@ -194,6 +208,7 @@
                 } else alert("Giỏi lắm! Con đã sửa đúng.");
             } else {
                 sndWrong.play();
+                document.getElementById('stat').className = '';
                 let tip = analyzeSpeech(target, res);
                 if(!customTarget) {
                     if (!isWrongOnce) mistakeAdvice.push({en: target, tip: tip});
@@ -208,8 +223,66 @@
         recognition.start();
     }
 
-    function next() { if(curIdx < curWords.length - 1) { curIdx++; show(); } else finish(); }
+    function next() {
+        // Nếu bỏ qua (dù có đọc sai hay chưa đọc) → ghi vào danh sách sai
+        const curWord = curWords[curIdx].en.toLowerCase().trim();
+        const alreadyLogged = mistakeAdvice.find(m => m.en === curWord);
+        if (!alreadyLogged) {
+            mistakeAdvice.push({ en: curWord, tip: isWrongOnce ? "Chưa đọc được." : "Bỏ qua, chưa thử." });
+        }
+        if (curIdx < curWords.length - 1) { curIdx++; show(); } else finish();
+    }
     
+    function playSingle(text) {
+        initAudio();
+        if (window.responsiveVoice) {
+            responsiveVoice.speak(text, "UK English Female", { rate: 0.8, pitch: 1 });
+        }
+    }
+
+    function recResult(word, idx) {
+        initAudio();
+        const Recognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+        if (!Recognition) return alert("iPhone hãy mở bằng Safari để dùng Mic!");
+        const btn = document.getElementById(`rec-btn-${idx}`);
+        const fb  = document.getElementById(`rec-fb-${idx}`);
+        if (btn.disabled) return;
+
+        btn.disabled = true;
+        btn.classList.add('recording');
+        btn.innerHTML = '🎧 Lắng nghe...';
+        fb.innerHTML = '';
+
+        const recognition = new Recognition();
+        recognition.lang = 'en-GB';
+        const target = word.toLowerCase().trim();
+
+        const reset = () => {
+            btn.disabled = false;
+            btn.classList.remove('recording');
+            btn.innerHTML = '🎤 Sửa';
+        };
+
+        recognition.start();
+
+        recognition.onresult = (e) => {
+            const res = e.results[0][0].transcript.toLowerCase().trim().replace(/[.,?]/g, '');
+            reset();
+            if (res.includes(target)) {
+                sndCorrect.play();
+                fb.innerHTML = `<span style="color:#2ecc71">✅ Chính xác! "${res}"</span>`;
+            } else {
+                sndWrong.play();
+                const tip = analyzeSpeech(target, res);
+                fb.innerHTML = `<span style="color:var(--fail)">❌ Nghe: "${res}" — ${tip}</span>`;
+            }
+        };
+        recognition.onerror = () => {
+            reset();
+            fb.innerHTML = `<span style="color:#888">⚠️ Không nghe được, thử lại!</span>`;
+        };
+    }
+
     function playCurrent() { 
         initAudio();
         const text = curWords[curIdx].en;
@@ -237,31 +310,92 @@
             : "Phát âm rất tốt!";
 
         document.getElementById('tutorDetails').innerHTML = mistakeAdvice.length > 0 ? 
-            mistakeAdvice.map(m => `
+            mistakeAdvice.map((m, i) => `
                 <div class="tutor-item">
-                    <span><b>${m.en}</b>: <small>${m.tip}</small></span>
-                    <button class="btn-sm" style="background:var(--p); color:white; border:none; padding:5px 10px; border-radius:5px;" onclick="rec('${m.en}')">🎤 Sửa</button>
+                    <div style="flex:1; min-width:0;">
+                        <span><b>${m.en}</b>: <small>${m.tip}</small></span>
+                        <div id="rec-fb-${i}" class="rec-feedback"></div>
+                    </div>
+                    <div style="display:flex; gap:5px; flex-shrink:0;">
+                        <button class="btn-sm" style="background:#2ecc71; color:white; border:none; padding:5px 10px; border-radius:5px;" onclick="playSingle('${m.en}')">🔊</button>
+                        <button id="rec-btn-${i}" class="btn-sm btn-rec-result" style="background:var(--p); color:white; border:none; padding:5px 10px; border-radius:5px;" onclick="recResult('${m.en}', ${i})">🎤 Sửa</button>
+                    </div>
                 </div>`).join('') : "🌟 Tuyệt vời!";
 
-        try {
-            const res = await fetch(`${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${score}&feedback=${encodeURIComponent(feedbackForSheet)}`);
-            const allData = await res.json();
-            
-            // HIỂN THỊ TẤT CẢ KẾT QUẢ VÀ SẮP XẾP TỪ CAO XUỐNG THẤP
-            let ranks = allData
-                .filter(r => r && String(r[2]) === cName) // Lọc theo lớp
-                .map(r => ({
-                    n: String(r[1]), // Tên học sinh
-                    s: parseFloat(String(r[3]).replace(/,/g, '.')) || 0 // Điểm
-                }))
-                .filter(item => item.s <= 10) // Loại bỏ giá trị rác
-                .sort((a, b) => b.s - a.s); // Sắp xếp giảm dần (cao xuống thấp)
+        // Lưu điểm và lấy BXH trong 1 request (Apps Script trả về toàn bộ data sau khi ghi)
+        document.getElementById('bContent').innerHTML = '<span class="spinner"></span> Đang lưu điểm...';
+        const showRanking = async (attempt = 1) => {
+            try {
+                const url = `${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${score}&feedback=${encodeURIComponent(feedbackForSheet)}`;
+                const saveRes = await fetch(url);
+                const allData = JSON.parse(await saveRes.text());
+                console.log('[BXH] Tổng rows:', allData.length);
+                console.log('[BXH] cName:', JSON.stringify(cName));
+                console.log('[BXH] ', allData);
+                document.getElementById('bContent').innerHTML = `<span class="spinner"></span> Đang tải bảng xếp hạng...`;
 
-            document.getElementById('bContent').innerHTML = ranks.map((r, i) => 
-                `<div class="rank-item ${r.n === sName ? 'rank-me' : ''}">
-                    <span>${i + 1}. ${r.n}</span><strong>${r.s.toFixed(1)}đ</strong>
-                </div>`).join('');
-        } catch (e) { document.getElementById('bContent').innerText = "Đã lưu điểm thành công!"; }
+                const parseScore = (val) => {
+                    const raw = String(val ?? '').trim();
+                    if (!raw) return NaN;
+                    if (/^\d{4}-\d{2}-\d{2}T/.test(raw)) return NaN;
+                    const num = parseFloat(raw.replace(/,/g, '.'));
+                    return num;
+                };
+
+                const myClass = cName.trim().toLowerCase();
+                const myScore = parseFloat(score);
+                console.log('[BXH] myClass:', JSON.stringify(myClass), '| myScore:', myScore);
+                let ranks = [];
+                
+                for (let i = 0; i < allData.length; i++) {
+                    const r = allData[i];
+                    if (!r || !r[1] || !r[2]) continue;
+                    
+                    const rowClass = String(r[2]).trim().toLowerCase();
+                    const name = String(r[1]).trim();
+                    
+                    // Kiểm tra khớp class
+                    if (rowClass !== myClass && !rowClass.startsWith(myClass) && !myClass.startsWith(rowClass)) {
+                        continue;
+                    }
+                    
+                    let s = parseScore(r[3]);
+                    if (isNaN(s)) s = parseScore(r[4]);
+                    
+                    if (!isNaN(s)) {
+                        ranks.push({ n: name, s: s });
+                    }
+                }
+                
+                // Inject điểm vừa làm vào (vì Apps Script lưu chậm hoặc lưu sai)
+                const existIdx = ranks.findIndex(r => r.n === sName);
+                if (existIdx === -1) {
+                    ranks.push({ n: sName, s: myScore });
+                    console.log('[BXH] Thêm mới:', sName, myScore);
+                } else if (ranks[existIdx].s < myScore) {
+                    ranks[existIdx].s = myScore;
+                    console.log('[BXH] Cập nhật:', sName, 'từ', ranks[existIdx].s, 'lên', myScore);
+                }
+                
+                // Sắp xếp giảm dần theo điểm
+                ranks.sort((a, b) => b.s - a.s);
+                
+                console.log('[BXH] Kết quả cuối:', ranks);
+
+                document.getElementById('bContent').innerHTML = ranks.map((r, i) =>
+                    `<div class="rank-item ${r.n === sName ? 'rank-me' : ''}">
+                        <span>${i + 1}. ${r.n}</span><strong>${r.s.toFixed(1)}đ</strong>
+                    </div>`).join('') || '<p style="color:#888">Chưa có dữ liệu</p>';
+            } catch (e) {
+                if (attempt < 3) {
+                    document.getElementById('bContent').innerHTML = `<span class="spinner"></span> Thử lại (${attempt}/3)...`;
+                    setTimeout(() => showRanking(attempt + 1), 2000);
+                } else {
+                    document.getElementById('bContent').innerText = '✅ Đã lưu điểm thành công!';
+                }
+            }
+        };
+        showRanking();
     }
 
     window.onload = loadData;
