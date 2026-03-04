@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Boost English Center - British English</title>
     <style>
         :root { --p: #003366; --bg: #f0f4f8; --success: #2ecc71; --fail: #d63031; }
@@ -78,7 +78,7 @@
 
 <script>
     // URL Web App từ Apps Script của bạn
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzAF5KpILMs0iwWJPWhn7gVQY9H7Muy1d2iw-SKnw-3KMhG89tqU6_q4vI-7MmMcvX6kA/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyMQCk5HUVYxGlfXPWWGPbmj5_BkUP0V7snZqOF3kb9wI8IkrQWc8URUOXaq3kycd6G-w/exec';
     const sheetID = '10_lZS6fipCVC8lk9SBU7tHNw1NnU0-6VKuwJsOh4vrk';
     const base = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv`;
     
@@ -88,15 +88,20 @@
     const sndCorrect = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
     const sndWrong = new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3');
 
+    // FIX IPHONE: Khởi tạo AudioContext khi tương tác
+    let audioCtx;
+    function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
     function speak(text, rate = 0.8) {
+        initAudio();
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(text);
         msg.lang = 'en-GB';
         msg.rate = rate;
-        const voices = window.speechSynthesis.getVoices();
-        const gbVoice = voices.find(v => v.lang === 'en-GB' || v.lang.includes('en_GB'));
-        if (gbVoice) msg.voice = gbVoice;
-        setTimeout(() => { window.speechSynthesis.speak(msg); }, 50);
+        window.speechSynthesis.speak(msg);
     }
 
     function analyzeSpeech(target, heard) {
@@ -109,7 +114,6 @@
     }
 
     async function loadData() {
-        window.speechSynthesis.getVoices();
         try {
             const r = await fetch(base);
             const text = await r.text();
@@ -135,8 +139,7 @@
         sName = document.getElementById('stName').value.trim();
         cName = document.getElementById('stClass').value;
         if(!sName) return alert("Nhập tên nhé!");
-        sndCorrect.play().then(()=>sndCorrect.pause());
-        speak(""); 
+        initAudio();
         document.getElementById('clsDisplay').innerText = cName;
         document.getElementById('loginPage').style.display='none';
         document.getElementById('studyPage').style.display='block';
@@ -157,13 +160,16 @@
     }
 
     function rec(customTarget = null) {
+        initAudio();
         const Recognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-        if (!Recognition) return alert("Trình duyệt không hỗ trợ Mic!");
+        if (!Recognition) return alert("iPhone hãy dùng Safari để dùng Mic!");
+        
         const recognition = new Recognition();
         recognition.lang = 'en-GB';
         recognition.interimResults = false;
-        const target = customTarget || curWords[curIdx].en.toLowerCase().trim();
+        const target = (customTarget || curWords[curIdx].en).toLowerCase().trim();
         document.getElementById('stat').innerText = "🎧 Đang nghe...";
+
         recognition.onresult = (e) => {
             let res = e.results[0][0].transcript.toLowerCase().trim().replace(/[.,?]/g,"");
             if(res.includes(target)) {
@@ -182,7 +188,7 @@
                     document.getElementById('aiTip').style.display = 'block';
                     document.getElementById('aiTip').innerHTML = `AI nghe: "${res}"`;
                     document.getElementById('btnSkip').style.display = 'block';
-                } else alert("❌ Vẫn chưa đúng, nghe mẫu lại nhé!");
+                }
             }
         };
         recognition.onerror = () => { document.getElementById('stat').innerText = "Lỗi micrô!"; };
@@ -213,17 +219,18 @@
                 </div>`).join('') : "🌟 Tuyệt vời! Con không sai từ nào.";
 
         try {
+            // GỬI ĐẦY ĐỦ 5 CỘT SANG APP SCRIPT (bao gồm &feedback)
             const res = await fetch(`${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${score}&feedback=${encodeURIComponent(feedbackForSheet)}`);
             const allData = await res.json();
             
-            // Lọc và xếp hạng (r[1]: Tên, r[2]: Lớp, r[3]: Điểm)
+            // XỬ LÝ BẢNG XẾP HẠNG (Chống lỗi hiện năm 2026)
             let ranks = allData
-                .filter(r => r && String(r[2]) === cName)
+                .filter(r => r && String(r[2]) === cName) // Cột C (Lớp)
                 .map(r => {
-                    let scoreVal = parseFloat(String(r[3]).replace(/,/g, '.')) || 0;
-                    return { n: String(r[1]), s: scoreVal };
+                    let scoreVal = parseFloat(String(r[3]).replace(/,/g, '.')) || 0; // Cột D (Điểm)
+                    return { n: String(r[1]), s: scoreVal }; // Cột B (Tên)
                 })
-                .filter(item => item.s <= 10) // CHỐNG LỖI HIỆN NĂM 2026
+                .filter(item => item.s <= 10) // CHỐNG LỖI HIỆN NĂM (Năm 2026 > 10)
                 .sort((a, b) => b.s - a.s); 
 
             document.getElementById('bContent').innerHTML = ranks.slice(0, 10).map((r, i) => 
