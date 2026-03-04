@@ -75,7 +75,6 @@
 </div>
 
 <script>
-    // Link Web App của bạn
     const scriptURL = 'https://script.google.com/macros/s/AKfycbxdYX14dwmiUEoUcEKdG18wr-8D6i2I2BM0QMc5jq9TxYjQIiXT31dlUOQ0IRFmy4tulw/exec';
     const sheetID = '10_lZS6fipCVC8lk9SBU7tHNw1NnU0-6VKuwJsOh4vrk';
     const base = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv`;
@@ -86,14 +85,13 @@
     const sndCorrect = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
     const sndWrong = new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3');
 
-    // FIX IPHONE: Đánh thức AudioContext
     let audioCtx;
     function initAudio() {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
     }
 
-    // AI Phân tích chi tiết âm
+    // AI Phân tích chi tiết âm - SỬA LỖI NHẬN XÉT CHI TIẾT
     function analyzeSpeech(target, heard) {
         target = target.toLowerCase().trim();
         heard = (heard || "").toLowerCase().trim();
@@ -102,7 +100,7 @@
         if (target.endsWith('s') && !heard.endsWith('s')) tips.push("thiếu âm đuôi /s/");
         if (target.endsWith('t') && !heard.endsWith('t')) tips.push("thiếu bật hơi /t/");
         if (target.endsWith('k') && !heard.endsWith('k')) tips.push("thiếu âm chặn /k/");
-        return tips.length > 0 ? "Gợi ý: " + tips.join(", ") : "Phát âm chưa rõ.";
+        return tips.length > 0 ? "Gợi ý: " + tips.join(", ") : "Phát âm lệch từ mẫu.";
     }
 
     async function loadData() {
@@ -204,9 +202,9 @@
         let score = ((totalPoints / curWords.length) * 10).toFixed(1);
         document.getElementById('fScore').innerText = score;
 
-        // Tổng hợp nhận xét chi tiết gửi về Sheet cột E
+        // Cập nhật Nhận xét AI chi tiết gửi lên Sheet
         let feedbackForSheet = mistakeAdvice.length > 0 
-            ? "Cần luyện: " + mistakeAdvice.map(m => `${m.en} (${m.tip})`).join(" | ") 
+            ? mistakeAdvice.map(m => `${m.en}: ${m.tip}`).join(" | ") 
             : "Phát âm rất tốt!";
 
         document.getElementById('tutorDetails').innerHTML = mistakeAdvice.length > 0 ? 
@@ -220,15 +218,15 @@
             const res = await fetch(`${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${score}&feedback=${encodeURIComponent(feedbackForSheet)}`);
             const allData = await res.json();
             
-            // Xếp hạng từ cao xuống thấp
+            // HIỂN THỊ TẤT CẢ KẾT QUẢ VÀ SẮP XẾP TỪ CAO XUỐNG THẤP
             let ranks = allData
-                .filter(r => r && String(r[2]) === cName)
+                .filter(r => r && String(r[2]) === cName) // Lọc theo lớp
                 .map(r => ({
-                    n: String(r[1]),
-                    s: parseFloat(String(r[3]).replace(/,/g, '.')) || 0
+                    n: String(r[1]), // Tên học sinh
+                    s: parseFloat(String(r[3]).replace(/,/g, '.')) || 0 // Điểm
                 }))
-                .filter(item => item.s <= 10)
-                .sort((a, b) => b.s - a.s); 
+                .filter(item => item.s <= 10) // Loại bỏ giá trị rác
+                .sort((a, b) => b.s - a.s); // Sắp xếp giảm dần (cao xuống thấp)
 
             document.getElementById('bContent').innerHTML = ranks.map((r, i) => 
                 `<div class="rank-item ${r.n === sName ? 'rank-me' : ''}">
