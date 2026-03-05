@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Boost English Center - British Voice</title>
+    <!-- ResponsiveVoice API - Miễn phí cho giáo dục -->
+    <script src="https://code.responsivevoice.org/responsivevoice.js?key=r5W2d8qU"></script>
+    <style>
+        :root { --p: #003366; --bg: #f0f4f8; --success: #2ecc71; --fail: #d63031; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; justify-content: center; }
+        .app-card { background: white; width: 100%; max-width: 450px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: var(--p); color: white; padding: 15px; text-align: center; }
+        .content { padding: 20px; text-align: center; }
+        .word-card { background: #fff; border: 2px solid #eee; border-radius: 20px; padding: 15px; margin-bottom: 15px; }
+        .word-img { width: 100%; height: 180px; object-fit: cover; border-radius: 15px; background: #f0f0f0; }
+        .word-en { font-size: 2.2rem; font-weight: 800; color: var(--p); margin: 10px 0; display: block; }
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-bottom: 10px; transition: 0.3s; touch-action: manipulation; }
+        .btn-main { background: var(--p); color: white; }
+        .btn-rec { background: var(--fail); color: white; }
+        #studyPage, #resultPage, #loginPage { display: none; }
+        .ai-feedback { background: #fff3e0; color: #d35400; padding: 15px; border-radius: 10px; margin: 10px 0; text-align: left; border-left: 4px solid #ff9800; display: none; font-size: 0.85rem; line-height: 1.6; }
+        .ai-feedback b { color: #e65100; }
+        .ai-feedback br { margin: 3px 0; }
+        .tutor-box { background: #eef2ff; border: 1px solid #c7d2fe; padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: left; }
+        .tutor-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; border-bottom: 1px dashed #c7d2fe; padding-bottom: 5px; }
+        .leaderboard { text-align: left; background: #fffbe6; padding: 15px; border-radius: 15px; border: 1px solid #fed330; max-height: 250px; overflow-y: auto; }
+        .rank-item { display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        .rank-me { background: #e8f5e9; font-weight: bold; color: #2ecc71; border: 1px solid #2ecc71; border-radius: 8px; }
+        .top-1 { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); font-weight: bold; border-radius: 8px; box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4); }
+        .top-2 { background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%); font-weight: bold; border-radius: 8px; box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4); }
+        .top-3 { background: linear-gradient(135deg, #cd7f32 0%, #e8a87c 100%); font-weight: bold; border-radius: 8px; box-shadow: 0 2px 8px rgba(205, 127, 50, 0.4); color: white; }
+        input, select { width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 12px; margin-bottom: 12px; font-size: 1rem; box-sizing: border-box; }
+        .spinner { display: inline-block; width: 22px; height: 22px; border: 3px solid #fed330; border-top-color: #003366; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .listening { color: var(--fail); animation: pulse 1s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.05); } }
+        .mic-wave { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--fail); margin: 0 2px; animation: wave 0.8s ease-in-out infinite; }
+        .mic-wave:nth-child(2) { animation-delay: 0.15s; }
+        .mic-wave:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes wave { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(2); } }
+        .btn-rec-result { transition: background 0.2s; min-width: 70px; }
+        .btn-rec-result.recording { background: var(--fail) !important; animation: pulse 0.7s ease-in-out infinite; }
+        .rec-feedback { font-size: 0.78rem; min-height: 1.1em; margin-top: 3px; }
+        .overall-comment { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 15px; margin: 15px 0; text-align: center; font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); }
+        .overall-comment .emoji { font-size: 2rem; display: block; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="app-card">
+    <div class="header">
+        <h3 style="margin:0">BOOST ENGLISH CENTER</h3>
+        <p style="margin:5px 0 0; font-size:0.8rem;">Cùng Boost luyện nói tiếng Anh mỗi ngày</p>
+    </div>
+
+    <div class="content">
+        <div id="loading">🚀 Đang kết nối dữ liệu...</div>
+        
+        <div id="loginPage">
+            <input type="text" id="stName" placeholder="Tên của con...">
+            <select id="stClass"></select>
+            <button class="btn btn-main" onclick="startApp()">VÀO HỌC 🚀</button>
+        </div>
+
+        <div id="studyPage">
+            <div id="prog" style="text-align:right; font-weight:bold; color:var(--p);">0/0</div>
+            <div class="word-card">
+                <img id="wImg" class="word-img" src="">
+                <span class="word-en" id="wEn">...</span>
+                <span id="wVi" style="color:#666">...</span>
+            </div>
+            <div style="margin-bottom:10px;"><small>🐢 Tốc độ nghe:</small> <input type="range" id="speedRate" min="0.4" max="1.0" step="0.1" value="0.8"></div>
+            <div id="stat" style="font-weight:bold; margin-bottom:10px; color:#555">Sẵn sàng!</div>
+            <div id="aiTip" class="ai-feedback"></div>
+            
+            <button class="btn btn-main" onclick="playCurrent()">🔊 NGHE MẪU</button>
+            <button class="btn btn-rec" onclick="rec()">🎤 BẤM ĐỂ ĐỌC</button>
+            <button class="btn" style="background:#888; color:white;" id="btnSkip" onclick="next()">⏭️ BỎ QUA</button>
+        </div>
+
+        <div id="resultPage">
+            <h2 style="color:var(--p);">KẾT QUẢ: <span id="fScore"></span>/10</h2>
+            <div id="overallComment" class="overall-comment"></div>
+            <div class="tutor-box">
+                <strong style="color:#1e40af;">💡 NHẬN XÉT CHI TIẾT AI:</strong>
+                <div id="tutorDetails" style="margin-top:8px;"></div>
+            </div>
+            <div class="leaderboard">
+                <strong>🏆 BẢNG XẾP HẠNG LỚP <span id="clsDisplay"></span>:</strong>
+                <div id="bContent" style="margin-top:10px;"></div>
+            </div>
+            <button class="btn btn-main" style="margin-top:20px" onclick="location.reload()">LUYỆN TẬP LẠI</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxdYX14dwmiUEoUcEKdG18wr-8D6i2I2BM0QMc5jq9TxYjQIiXT31dlUOQ0IRFmy4tulw/exec';
+    const sheetID = '10_lZS6fipCVC8lk9SBU7tHNw1NnU0-6VKuwJsOh4vrk';
+    const base = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv`;
+    const PIXABAY_KEY = '54889597-524a0665f006290bd244e9617';
+    
+    let boostData = {}, curWords = [], curIdx = 0, totalPoints = 0, sName = "", cName = "";
+    let isWrongOnce = false, mistakeAdvice = [], isCorrectAnswer = false;
+
+    const sndCorrect = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
+    const sndWrong = new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3');
+
+    function getOverallComment(score) {
+        if (score >= 9.5) return { emoji: '🏆✨', text: 'XUẤT SẮC! Con là nhà vô địch!' };
+        if (score >= 8.5) return { emoji: '🌟', text: 'TUYỆT VỜI! Phát âm rất tốt!' };
+        if (score >= 7.5) return { emoji: '👏', text: 'RẤT TÔT! Tiếp tục phát huy nhé!' };
+        if (score >= 6.5) return { emoji: '😊', text: 'TỐT! Con đang tiến bộ đấy!' };
+        if (score >= 5.0) return { emoji: '💪', text: 'KHÁ! Cố gắng thêm nữa nhé!' };
+        return { emoji: '📚', text: 'CẦN CỐ GẮNG! Luyện thêm sẽ giỏi hơn!' };
+    }
+
+    let audioCtx;
+    function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    // AI Phân tích chi tiết âm - CHUẨN SƯ PHẠM TIẾNG ANH - PHÂN TÍCH PHONEME
+    function analyzeSpeech(target, heard) {
+        target = target.toLowerCase().trim();
+        heard = (heard || "").toLowerCase().trim();
+        
+        if (!heard) return { html: "🔇 Âm thanh quá nhỏ hoặc không rõ ràng.", visual: "" };
+        if (heard === target) return { html: "✅ Phát âm chính xác 100%!", visual: "" };
+        
+        // Sử dụng phân tích phoneme để so sánh từng âm
+        const phoneticAnalysis = comparePhonemes(target, heard);
+        const accuracy = phoneticAnalysis.accuracy;
+        
+        // Chỉ trả về đánh giá tổng thể ngắn gọn
+        let feedback = "";
+        if (accuracy >= 80) {
+            feedback = `💡 Rất tốt! Đạt ${accuracy.toFixed(0)}% - cần điều chỉnh nhỏ.`;
+        } else if (accuracy >= 50) {
+            feedback = `💪 Được ${accuracy.toFixed(0)}% - cố gắng thêm nhé!`;
+        } else {
+            feedback = `📚 Đạt ${accuracy.toFixed(0)}% - nghe lại mẫu kỹ.`;
+        }
+        
+        return {
+            html: feedback,
+            visual: phoneticAnalysis.visual,
+            accuracy: accuracy
+        };
+    }
+    
+    // Hàm tính độ tương đồng giữa 2 từ (Levenshtein Distance)
+    function calculateSimilarity(s1, s2) {
+        const longer = s1.length > s2.length ? s1 : s2;
+        const shorter = s1.length > s2.length ? s2 : s1;
+        if (longer.length === 0) return 1.0;
+        const editDistance = getEditDistance(longer, shorter);
+        return (longer.length - editDistance) / longer.length;
+    }
+    
+    function getEditDistance(s1, s2) {
+        s1 = s1.toLowerCase();
+        s2 = s2.toLowerCase();
+        const costs = [];
+        for (let i = 0; i <= s1.length; i++) {
+            let lastValue = i;
+            for (let j = 0; j <= s2.length; j++) {
+                if (i === 0) {
+                    costs[j] = j;
+                } else if (j > 0) {
+                    let newValue = costs[j - 1];
+                    if (s1.charAt(i - 1) !== s2.charAt(j - 1))
+                        newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+                    costs[j - 1] = lastValue;
+                    lastValue = newValue;
+                }
+            }
+            if (i > 0) costs[s2.length] = lastValue;
+        }
+        return costs[s2.length];
+    }
+
+    // PHÂN TÍCH PHONETIC CHI TIẾT - Chuyển từ sang âm vị
+    function textToPhonemes(word) {
+        word = word.toLowerCase();
+        let phonemes = [];
+        let i = 0;
+        
+        // Dictionary các âm phổ biến trong tiếng Anh
+        const phonemeRules = [
+            // Âm đôi viết 3 chữ
+            { pattern: /^tch/, phoneme: 'tʃ', name: 'CH' },
+            { pattern: /^igh/, phoneme: 'aɪ', name: 'AI' },
+            
+            // Âm đôi viết 2 chữ
+            { pattern: /^th/, phoneme: 'θ/ð', name: 'TH' },
+            { pattern: /^ch/, phoneme: 'tʃ', name: 'CH' },
+            { pattern: /^sh/, phoneme: 'ʃ', name: 'SH' },
+            { pattern: /^ph/, phoneme: 'f', name: 'PH' },
+            { pattern: /^wh/, phoneme: 'w', name: 'WH' },
+            { pattern: /^ng/, phoneme: 'ŋ', name: 'NG' },
+            { pattern: /^ck/, phoneme: 'k', name: 'CK' },
+            
+            // Nguyên âm đôi
+            { pattern: /^ee/, phoneme: 'iː', name: 'EE' },
+            { pattern: /^ea/, phoneme: 'iː', name: 'EA' },
+            { pattern: /^oo/, phoneme: 'uː', name: 'OO' },
+            { pattern: /^ai/, phoneme: 'eɪ', name: 'AI' },
+            { pattern: /^ay/, phoneme: 'eɪ', name: 'AY' },
+            { pattern: /^ou/, phoneme: 'aʊ', name: 'OU' },
+            { pattern: /^ow/, phoneme: 'aʊ', name: 'OW' },
+            { pattern: /^oi/, phoneme: 'ɔɪ', name: 'OI' },
+            { pattern: /^oy/, phoneme: 'ɔɪ', name: 'OY' },
+            { pattern: /^au/, phoneme: 'ɔː', name: 'AU' },
+            { pattern: /^aw/, phoneme: 'ɔː', name: 'AW' },
+            { pattern: /^ie/, phoneme: 'iː', name: 'IE' },
+            { pattern: /^ue/, phoneme: 'uː', name: 'UE' },
+            { pattern: /^ui/, phoneme: 'uː', name: 'UI' },
+            
+            // Phụ âm đơn
+            { pattern: /^b/, phoneme: 'b', name: 'B' },
+            { pattern: /^c/, phoneme: 'k', name: 'C' },
+            { pattern: /^d/, phoneme: 'd', name: 'D' },
+            { pattern: /^f/, phoneme: 'f', name: 'F' },
+            { pattern: /^g/, phoneme: 'g', name: 'G' },
+            { pattern: /^h/, phoneme: 'h', name: 'H' },
+            { pattern: /^j/, phoneme: 'dʒ', name: 'J' },
+            { pattern: /^k/, phoneme: 'k', name: 'K' },
+            { pattern: /^l/, phoneme: 'l', name: 'L' },
+            { pattern: /^m/, phoneme: 'm', name: 'M' },
+            { pattern: /^n/, phoneme: 'n', name: 'N' },
+            { pattern: /^p/, phoneme: 'p', name: 'P' },
+            { pattern: /^q/, phoneme: 'kw', name: 'Q' },
+            { pattern: /^r/, phoneme: 'r', name: 'R' },
+            { pattern: /^s/, phoneme: 's', name: 'S' },
+            { pattern: /^t/, phoneme: 't', name: 'T' },
+            { pattern: /^v/, phoneme: 'v', name: 'V' },
+            { pattern: /^w/, phoneme: 'w', name: 'W' },
+            { pattern: /^x/, phoneme: 'ks', name: 'X' },
+            { pattern: /^y/, phoneme: 'j', name: 'Y' },
+            { pattern: /^z/, phoneme: 'z', name: 'Z' },
+            
+            // Nguyên âm đơn
+            { pattern: /^a/, phoneme: 'æ', name: 'A' },
+            { pattern: /^e/, phoneme: 'e', name: 'E' },
+            { pattern: /^i/, phoneme: 'ɪ', name: 'I' },
+            { pattern: /^o/, phoneme: 'ɒ', name: 'O' },
+            { pattern: /^u/, phoneme: 'ʌ', name: 'U' }
+        ];
+        
+        while (i < word.length) {
+            let matched = false;
+            const remaining = word.substring(i);
+            
+            for (const rule of phonemeRules) {
+                if (rule.pattern.test(remaining)) {
+                    const matchLen = rule.pattern.exec(remaining)[0].length;
+                    phonemes.push({
+                        letters: word.substring(i, i + matchLen),
+                        phoneme: rule.phoneme,
+                        name: rule.name,
+                        position: i
+                    });
+                    i += matchLen;
+                    matched = true;
+                    break;
+                }
+            }
+            
+            if (!matched) {
+                // Bỏ qua ký tự không nhận dạng được (như dấu câu)
+                i++;
+            }
+        }
+        
+        return phonemes;
+    }
+
+    // So sánh từng âm và tạo visualization
+    function comparePhonemes(targetWord, heardWord) {
+        const targetPhonemes = textToPhonemes(targetWord);
+        const heardPhonemes = textToPhonemes(heardWord);
+        
+        let visual = '<div style="font-family:monospace; font-size:1.1rem; margin:10px 0;">';
+        let correctCount = 0;
+        
+        // Hiển thị từ mục tiêu với màu
+        visual += '<div style="margin-bottom:8px;"><strong>🎯 Mục tiêu:</strong> ';
+        targetPhonemes.forEach((p, idx) => {
+            const heardMatch = heardPhonemes[idx];
+            let color = '#e0e0e0';
+            let title = `Cần: ${p.phoneme}`;
+            
+            if (heardMatch) {
+                if (heardMatch.phoneme === p.phoneme || heardMatch.letters === p.letters) {
+                    color = '#4caf50';
+                    title = `✓ Đúng: ${p.phoneme}`;
+                    correctCount++;
+                } else if (isSimilarPhoneme(p.phoneme, heardMatch.phoneme)) {
+                    color = '#ff9800';
+                    title = `~ Gần: ${p.phoneme} vs ${heardMatch.phoneme}`;
+                    correctCount += 0.5;
+                } else {
+                    color = '#f44336';
+                    title = `✗ Sai: cần ${p.phoneme}, nghe ${heardMatch.phoneme}`;
+                }
+            }
+            
+            visual += `<span style="background:${color}; color:white; padding:2px 6px; margin:0 2px; border-radius:4px; display:inline-block;" title="${title}">${p.letters}</span>`;
+        });
+        visual += '</div>';
+        
+        visual += '</div>';
+        
+        const accuracy = targetPhonemes.length > 0 ? (correctCount / targetPhonemes.length) * 100 : 0;
+        
+        return {
+            visual: visual,
+            accuracy: accuracy,
+            correctCount: correctCount,
+            totalCount: targetPhonemes.length,
+            targetPhonemes: targetPhonemes,
+            heardPhonemes: heardPhonemes
+        };
+    }
+
+    // Kiểm tra xem 2 phoneme có tương tự không
+    function isSimilarPhoneme(p1, p2) {
+        const similarGroups = [
+            ['s', 'z', 'ʃ', 'ʒ'],  // Sibilants
+            ['t', 'd', 'tʃ', 'dʒ'], // Alveolar/post-alveolar
+            ['p', 'b'],             // Bilabial
+            ['k', 'g'],             // Velar
+            ['f', 'v'],             // Labiodental
+            ['θ', 'ð'],             // Dental
+            ['m', 'n', 'ŋ'],        // Nasal
+            ['iː', 'ɪ', 'i'],       // High front
+            ['uː', 'ʊ', 'u'],       // High back
+            ['e', 'æ', 'ə'],        // Mid/low front
+            ['ɒ', 'ɔː', 'o']        // Back rounded
+        ];
+        
+        for (const group of similarGroups) {
+            if (group.includes(p1) && group.includes(p2)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    async function loadData() {
+        try {
+            const r = await fetch(base);
+            const text = await r.text();
+            const rows = text.split('\n').slice(1);
+            rows.forEach(row => {
+                const c = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                let cls = (c[0]||"").replace(/"/g, '').trim();
+                let en = (c[1]||"").replace(/"/g, '').trim();
+                let vi = (c[2] || "").replace(/"/g, '').trim();
+                if (cls && en) {
+                    if (!boostData[cls]) boostData[cls] = [];
+                    boostData[cls].push({en, vi});
+                }
+            });
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'block';
+            let sel = document.getElementById('stClass');
+            Object.keys(boostData).forEach(k => sel.add(new Option("Lớp: " + k, k)));
+        } catch (e) { document.getElementById('loading').innerText = "❌ Lỗi kết nối!"; }
+    }
+
+    function startApp() {
+        sName = document.getElementById('stName').value.trim();
+        cName = document.getElementById('stClass').value;
+        if(!sName) return alert("Con chưa nhập tên!");
+        initAudio();
+        document.getElementById('clsDisplay').innerText = cName;
+        document.getElementById('loginPage').style.display='none';
+        document.getElementById('studyPage').style.display='block';
+        curWords = boostData[cName];
+        show();
+    }
+
+    function show() {
+        isWrongOnce = false;
+        isCorrectAnswer = false;
+        // document.getElementById('btnSkip').style.display = 'none';
+        document.getElementById('aiTip').style.display = 'none';
+        let w = curWords[curIdx];
+        document.getElementById('wEn').innerText = w.en;
+        document.getElementById('wVi').innerText = w.vi;
+        setWordImage(w.en);
+        document.getElementById('prog').innerText = `${curIdx+1}/${curWords.length}`;
+        document.getElementById('stat').className = '';
+        document.getElementById('stat').innerText = "Đến lượt con đọc!";
+    }
+
+    async function setWordImage(keyword) {  
+        const imgEl = document.getElementById('wImg');
+        const dummyUrl = `https://dummyimage.com/400x300/90a4ae/fff&text=${encodeURIComponent(keyword)}`;
+        try {
+            // Bước 1: Wikipedia
+            const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(keyword)}&prop=pageimages&format=json&pithumbsize=400&origin=*`;
+            const wikiData = await (await fetch(wikiUrl)).json();
+            const page = Object.values(wikiData.query.pages)[0];
+            if (page?.thumbnail?.source) {
+                imgEl.src = page.thumbnail.source;
+                return;
+            }
+            // Bước 2: Wiki không có ảnh → thử Pixabay với image_type=vector
+            const pixUrl = `https://pixabay.com/api/?key=${PIXABAY_KEY}&q=${encodeURIComponent(keyword)}&image_type=vector&safesearch=true&per_page=3&order=popular`;
+            const pixData = await (await fetch(pixUrl)).json();
+            imgEl.src = pixData.hits?.[0]?.webformatURL || dummyUrl;
+        } catch {
+            imgEl.src = dummyUrl;
+        }
+    }
+
+    function rec(customTarget = null) {
+        initAudio();
+        const Recognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+        if (!Recognition) return alert("iPhone hãy mở bằng Safari để dùng Mic!");
+        
+        const recognition = new Recognition();
+        recognition.lang = 'en-GB';
+        recognition.continuous = false;  // Chỉ nghe 1 lần rồi dừng
+        recognition.interimResults = false;  // Chỉ lấy kết quả cuối cùng
+        recognition.maxAlternatives = 1;  // Chỉ lấy 1 kết quả tốt nhất
+        const target = (customTarget || curWords[curIdx].en).toLowerCase().trim();
+        document.getElementById('stat').className = 'listening';
+        document.getElementById('stat').innerHTML = `🎧 Đang nghe <span class="mic-wave"></span><span class="mic-wave"></span><span class="mic-wave"></span>`;
+
+        recognition.onresult = (e) => {
+            let res = e.results[0][0].transcript.toLowerCase().trim().replace(/[.,?]/g,"");
+            const similarity = calculateSimilarity(target, res);
+            
+            // Phát âm chính xác 100%
+            if(res === target) {
+                sndCorrect.play();
+                document.getElementById('stat').className = '';
+                if(!customTarget) {
+                    isCorrectAnswer = true;
+                    totalPoints += isWrongOnce ? 0.5 : 1;
+                    // Xóa từ khỏi danh sách sai nếu đã phát âm đúng
+                    const existingIndex = mistakeAdvice.findIndex(m => m.en === target);
+                    if (existingIndex !== -1) {
+                        mistakeAdvice.splice(existingIndex, 1);
+                    }
+                    document.getElementById('stat').innerText = "🌟 CHÍNH XÁC!";
+                    setTimeout(() => next(), 1200);
+                } else alert("Giỏi lắm! Con đã sửa đúng.");
+            } 
+            // Phát âm gần đúng (độ tương đồng > 85%)
+            else if(similarity >= 0.85) {
+                sndCorrect.play();
+                document.getElementById('stat').className = '';
+                const analysis = analyzeSpeech(target, res);
+                if(!customTarget) {
+                    isCorrectAnswer = true;
+                    totalPoints += isWrongOnce ? 0.5 : 0.8;
+                    // Xóa từ khỏi danh sách sai nếu đã phát âm gần đúng
+                    const existingIndex = mistakeAdvice.findIndex(m => m.en === target);
+                    if (existingIndex !== -1) {
+                        mistakeAdvice.splice(existingIndex, 1);
+                    }
+                    document.getElementById('stat').innerText = "👍 GẦN ĐÚNG! (+0.8đ)";
+                    // Vẫn hiển thị nhận xét để học sinh biết chỗ cần cải thiện
+                    document.getElementById('aiTip').style.display = 'block';
+                    document.getElementById('aiTip').innerHTML = `${analysis.visual}<div style="padding:8px; border-radius:5px; background:#e8f5e9; color:#1b5e20;">🎧 AI nghe: "${res}" - Gần đúng!</div>`;
+                    setTimeout(() => {
+                        document.getElementById('aiTip').style.display = 'none';
+                        next();
+                    }, 2500);
+                } else alert("Gần đúng rồi! Thử lại để đạt 100% nhé!");
+            }
+            // Phát âm sai hoặc lệch nhiều
+            else {
+                sndWrong.play();
+                document.getElementById('stat').className = '';
+                const analysis = analyzeSpeech(target, res);
+                if(!customTarget) {
+                    if (!isWrongOnce) mistakeAdvice.push({en: target, tip: `AI nghe: "${res}"`, visual: analysis.visual});
+                    isWrongOnce = true;
+                    document.getElementById('stat').innerText = `❌ Thử lại nhé! (Độ chính xác: ${(similarity * 100).toFixed(0)}%)`;
+                    document.getElementById('aiTip').style.display = 'block';
+                    document.getElementById('aiTip').innerHTML = `${analysis.visual}<div style="padding:8px; border-radius:5px; background:#ffe0b2; color:#d35400;">🎧 AI nghe: "${res}"</div>`;
+                    document.getElementById('btnSkip').style.display = 'block';
+                }
+            }
+        };
+        recognition.start();
+    }
+
+    function next() {
+        // Chỉ thêm vào danh sách sai nếu học sinh KHÔNG trả lời đúng
+        if (!isCorrectAnswer) {
+            const curWord = curWords[curIdx].en.toLowerCase().trim();
+            const alreadyLogged = mistakeAdvice.find(m => m.en === curWord);
+            if (!alreadyLogged) {
+                mistakeAdvice.push({ en: curWord, tip: isWrongOnce ? "Chưa đọc được." : "Bỏ qua, chưa thử." });
+            }
+        }
+        if (curIdx < curWords.length - 1) { curIdx++; show(); } else finish();
+    }
+    
+    function playSingle(text) {
+        initAudio();
+        if (window.responsiveVoice) {
+            responsiveVoice.speak(text, "UK English Female", { rate: 0.8, pitch: 1 });
+        }
+    }
+
+    function recResult(word, idx) {
+        initAudio();
+        const Recognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+        if (!Recognition) return alert("iPhone hãy mở bằng Safari để dùng Mic!");
+        const btn = document.getElementById(`rec-btn-${idx}`);
+        const fb  = document.getElementById(`rec-fb-${idx}`);
+        if (btn.disabled) return;
+
+        btn.disabled = true;
+        btn.classList.add('recording');
+        btn.innerHTML = '🎧 Lắng nghe...';
+        fb.innerHTML = '';
+
+        const recognition = new Recognition();
+        recognition.lang = 'en-GB';
+        recognition.continuous = false;  // Chỉ nghe 1 lần rồi dừng
+        recognition.interimResults = false;  // Chỉ lấy kết quả cuối cùng
+        recognition.maxAlternatives = 1;  // Chỉ lấy 1 kết quả tốt nhất
+        const target = word.toLowerCase().trim();
+
+        const reset = () => {
+            btn.disabled = false;
+            btn.classList.remove('recording');
+            btn.innerHTML = '🎤 Sửa';
+        };
+
+        recognition.start();
+
+        recognition.onresult = (e) => {
+            const res = e.results[0][0].transcript.toLowerCase().trim().replace(/[.,?]/g, '');
+            const similarity = calculateSimilarity(target, res);
+            reset();
+            
+            if (res === target) {
+                sndCorrect.play();
+                fb.innerHTML = `<span style="color:#2ecc71; font-weight:bold;">✅ Chính xác 100%! "${res}"</span>`;
+            } else if (similarity >= 0.85) {
+                sndCorrect.play();
+                const analysis = analyzeSpeech(target, res);
+                fb.innerHTML = `<span style="color:#2ecc71;">👍 Gần đúng ${(similarity*100).toFixed(0)}%!</span>${analysis.visual}<small style="color:#666;">🎧 AI nghe: "${res}"</small>`;
+            } else {
+                sndWrong.play();
+                const analysis = analyzeSpeech(target, res);
+                fb.innerHTML = `<span style="color:var(--fail);">❌ ${(similarity*100).toFixed(0)}%</span>${analysis.visual}<small style="color:#666;">🎧 AI nghe: "${res}"</small>`;
+            }
+        };
+        recognition.onerror = () => {
+            reset();
+            fb.innerHTML = `<span style="color:#888">⚠️ Không nghe được, thử lại!</span>`;
+        };
+    }
+
+    function playCurrent() { 
+        initAudio();
+        const text = curWords[curIdx].en;
+        const rate = document.getElementById('speedRate').value;
+        
+        // Dùng ResponsiveVoice cho giọng British đồng nhất
+        if (window.responsiveVoice) {
+            responsiveVoice.speak(text, "UK English Female", {
+                rate: rate,
+                pitch: 1
+            });
+        } 
+    }
+
+    async function finish() {
+        document.getElementById('studyPage').style.display = 'none';
+        document.getElementById('resultPage').style.display = 'block';
+        
+        let score = ((totalPoints / curWords.length) * 10).toFixed(1);
+        document.getElementById('fScore').innerText = score;
+
+        // Hiển thị nhận xét tổng thể
+        const comment = getOverallComment(parseFloat(score));
+        document.getElementById('overallComment').innerHTML = `<span class="emoji">${comment.emoji}</span>${comment.text}`;
+
+        // Cập nhật Nhận xét AI chi tiết gửi lên Sheet (loại bỏ HTML tags)
+        let feedbackForSheet = mistakeAdvice.length > 0 
+            ? mistakeAdvice.map(m => `${m.en}: ${m.tip.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()}`).join(" | ") 
+            : "Phát âm rất tốt!";
+
+        document.getElementById('tutorDetails').innerHTML = mistakeAdvice.length > 0 ? 
+            mistakeAdvice.map((m, i) => `
+                <div class="tutor-item" style="align-items:flex-start;">
+                    <div style="flex:1; min-width:0;">
+                        <div style="font-weight:bold; color:#1e40af; margin-bottom:5px;">📝 ${m.en}</div>
+                        <div style="font-size:0.85rem; line-height:1.5; color:#374151;">${m.tip}</div>
+                        <div id="rec-fb-${i}" class="rec-feedback"></div>
+                    </div>
+                    <div style="display:flex; gap:5px; flex-shrink:0;">
+                        <button class="btn-sm" style="background:#2ecc71; color:white; border:none; padding:5px 10px; border-radius:5px;" onclick="playSingle('${m.en}')">🔊</button>
+                        <button id="rec-btn-${i}" class="btn-sm btn-rec-result" style="background:var(--p); color:white; border:none; padding:5px 10px; border-radius:5px;" onclick="recResult('${m.en}', ${i})">🎤 Sửa</button>
+                    </div>
+                </div>`).join('') : "🌟 Con phát âm rất tốt!";
+
+        // Lưu điểm và lấy BXH trong 1 request (Apps Script trả về toàn bộ data sau khi ghi)
+        document.getElementById('bContent').innerHTML = '<span class="spinner"></span> Đang lưu điểm...';
+        const showRanking = async (attempt = 1) => {
+            try {
+                const url = `${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${encodeURIComponent("'" + score)}&feedback=${encodeURIComponent(feedbackForSheet)}`;
+                const saveRes = await fetch(url);
+                const allData = JSON.parse(await saveRes.text());
+                console.log('[BXH] Tổng rows:', allData.length);
+                console.log('[BXH] cName:', JSON.stringify(cName));
+                console.log('[BXH] ', allData);
+                document.getElementById('bContent').innerHTML = `<span class="spinner"></span> Đang tải bảng xếp hạng...`;
+
+                const parseScore = (val) => {
+                    const raw = String(val ?? '').trim();
+                    if (!raw) return NaN;
+                    if (/^\d{4}-\d{2}-\d{2}T/.test(raw)) return NaN;
+                    const num = parseFloat(raw.replace(/,/g, '.'));
+                    return num;
+                };
+
+                const myClass = cName.trim().toLowerCase();
+                const myScore = parseFloat(score);
+                console.log('[BXH] myClass:', JSON.stringify(myClass), '| myScore:', myScore);
+                let ranks = [];
+                
+                for (let i = 0; i < allData.length; i++) {
+                    const r = allData[i];
+                    if (!r || !r[1] || !r[2]) continue;
+                    
+                    const rowClass = String(r[2]).trim().toLowerCase();
+                    const name = String(r[1]).trim();
+                    
+                    // Kiểm tra khớp class
+                    if (rowClass !== myClass && !rowClass.startsWith(myClass) && !myClass.startsWith(rowClass)) {
+                        continue;
+                    }
+                    
+                    let s = parseScore(r[3]);
+                    if (isNaN(s)) s = parseScore(r[4]);
+                    
+                    if (!isNaN(s)) {
+                        ranks.push({ n: name, s: s });
+                    }
+                }
+                
+                // Inject điểm vừa làm vào (vì Apps Script lưu chậm hoặc lưu sai)
+                const existIdx = ranks.findIndex(r => r.n === sName);
+                if (existIdx === -1) {
+                    ranks.push({ n: sName, s: myScore });
+                    console.log('[BXH] Thêm mới:', sName, myScore);
+                } else if (ranks[existIdx].s < myScore) {
+                    ranks[existIdx].s = myScore;
+                    console.log('[BXH] Cập nhật:', sName, 'từ', ranks[existIdx].s, 'lên', myScore);
+                }
+                
+                // Sắp xếp giảm dần theo điểm
+                ranks.sort((a, b) => b.s - a.s);
+                
+                console.log('[BXH] Kết quả cuối:', ranks);
+
+                const getMedalAndClass = (rank) => {
+                    if (rank === 1) return { medal: '🥇', cls: 'top-1' };
+                    if (rank === 2) return { medal: '🥈', cls: 'top-2' };
+                    if (rank === 3) return { medal: '🥉', cls: 'top-3' };
+                    return { medal: '', cls: '' };
+                };
+
+                document.getElementById('bContent').innerHTML = ranks.map((r, i) => {
+                    const { medal, cls } = getMedalAndClass(i + 1);
+                    const isMe = r.n === sName ? 'rank-me' : '';
+                    const finalClass = isMe || cls;
+                    return `<div class="rank-item ${finalClass}">
+                        <span>${medal ? medal + ' ' : ''}${i + 1}. ${r.n}</span><strong>${r.s.toFixed(1)}đ</strong>
+                    </div>`;
+                }).join('') || '<p style="color:#888">Chưa có dữ liệu</p>';
+            } catch (e) {
+                if (attempt < 3) {
+                    document.getElementById('bContent').innerHTML = `<span class="spinner"></span> Thử lại (${attempt}/3)...`;
+                    setTimeout(() => showRanking(attempt + 1), 2000);
+                } else {
+                    document.getElementById('bContent').innerText = '✅ Đã lưu điểm thành công!';
+                }
+            }
+        };
+        showRanking();
+    }
+
+    window.onload = loadData;
+</script>
+</body>
+</html>
