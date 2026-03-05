@@ -613,7 +613,7 @@
         document.getElementById('bContent').innerHTML = '<span class="spinner"></span> Đang lưu điểm...';
         const showRanking = async (attempt = 1) => {
             try {
-                const url = `${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${score}&feedback=${encodeURIComponent(feedbackForSheet)}`;
+                const url = `${scriptURL}?name=${encodeURIComponent(sName)}&clss=${encodeURIComponent(cName)}&score=${encodeURIComponent("'" + score)}&feedback=${encodeURIComponent(feedbackForSheet)}`;
                 const saveRes = await fetch(url);
                 const allData = JSON.parse(await saveRes.text());
                 console.log('[BXH] Tổng rows:', allData.length);
